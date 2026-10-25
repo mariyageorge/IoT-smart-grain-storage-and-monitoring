@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Smart Grain Storage Monitoring System – real-time ESP32 IoT dashboard." />
+  <title>Smart Grain Storage Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- DEMO BANNER -->
+  <div id="demo-banner" class="demo-banner hidden">
+    <div class="demo-banner-inner">
+      <span class="demo-badge">DEMO</span>
+      <span>Simulated sensor data — no hardware connected</span>
+      <button id="btn-disable-demo">Exit Demo</button>
+    </div>
+  </div>
+
+  <div class="app-shell">
+
+    <!-- ═══════════ SIDEBAR ═══════════ -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="8" width="16" height="22" rx="2" fill="url(#lg1)"/>
+            <ellipse cx="18" cy="8" rx="8" ry="3" fill="#34d399"/>
+            <rect x="13" y="13" width="10" height="1.5" rx="0.75" fill="rgba(255,255,255,0.3)"/>
+            <rect x="13" y="17" width="10" height="1.5" rx="0.75" fill="rgba(255,255,255,0.2)"/>
+            <rect x="13" y="21" width="6"  height="1.5" rx="0.75" fill="rgba(255,255,255,0.15)"/>
+            <defs>
+              <linearGradient id="lg1" x1="10" y1="8" x2="10" y2="30" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#34d399"/>
+                <stop offset="100%" stop-color="#065f46"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-title">GrainMon</span>
+          <span class="logo-sub">IoT Dashboard</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Monitoring</div>
+        <a href="#" class="nav-item active" id="nav-dashboard">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 10a8 8 0 1116 0A8 8 0 012 10zm8-4a4 4 0 100 8 4 4 0 000-8zm0 2a2 2 0 110 4 2 2 0 010-4z"/></svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" id="nav-readings">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4h14v2H3V4zm0 5h14v2H3V9zm0 5h14v2H3v-2z"/></svg>
+          <span>Readings</span>
+        </a>
+        <div class="nav-section-label">System</div>
+        <a href="#" class="nav-item" id="nav-api">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 14a6 6 0 110-12 6 6 0 010 12zm-1-5h2v2H9v-2zm0-6h2v4H9V5z"/></svg>
+          <span>API Status</span>
+          <span class="nav-badge" id="api-status-dot"></span>
+        </a>
+      </nav>
+
+      <div class="sidebar-device">
+        <div class="device-card">
+          <div class="device-header">
+            <span class="device-label">DEVICE</span>
+            <span class="device-conn" id="device-conn-indicator"></span>
+          </div>
+          <div class="device-id" id="sidebar-device-id">—</div>
+          <div class="device-meta">
+            <span>ESP32</span>
+            <span class="sep">·</span>
+            <span>HC-SR04</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="demo-toggle-btn" id="btn-toggle-demo">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M10 2C5.58 2 2 5.58 2 10s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 14a6 6 0 110-12 6 6 0 010 12z"/></svg>
+          Demo Mode
+        </button>
+      </div>
+    </aside>
+
+    <!-- ═══════════ MAIN CONTENT ═══════════ -->
+    <div class="main-area">
+
+      <!-- TOP BAR -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1 class="page-title">Grain Storage Monitor</h1>
+          <span class="page-subtitle">Container #1 — Real-time surveillance</span>
+        </div>
+        <div class="topbar-right">
+          <div class="live-clock" id="live-clock"></div>
+          <div class="conn-pill" id="conn-pill">
+            <span class="conn-dot" id="conn-dot"></span>
+            <span id="conn-label">Connecting…</span>
+          </div>
+          <button class="refresh-btn" id="btn-refresh" title="Refresh now">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <main class="dashboard-grid">
+
+        <!-- ── KPI STRIP ── -->
+        <section class="kpi-strip">
+
+          <div class="kpi-card" id="kpi-distance">
+            <div class="kpi-icon kpi-icon--blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="22"/><polyline points="8 6 12 2 16 6"/><polyline points="8 18 12 22 16 18"/></svg>
+            </div>
+            <div class="kpi-body">
+              <span class="kpi-label">Distance</span>
+              <div class="kpi-value-row">
+                <span class="kpi-value" id="val-distance">—</span>
+                <span class="kpi-unit">cm</span>
+              </div>
+            </div>
+            <div class="kpi-sparkline" id="spark-distance"></div>
+          </div>
+
+          <div class="kpi-card" id="kpi-fill">
+            <div class="kpi-icon kpi-icon--green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M5 16h14"/></svg>
+            </div>
+            <div class="kpi-body">
+              <span class="kpi-label">Fill Level</span>
+              <div class="kpi-value-row">
+                <span class="kpi-value" id="val-fill">—</span>
+                <span class="kpi-unit">%</span>
+              </div>
+              <div class="kpi-bar-track">
+                <div class="kpi-bar-fill" id="kpi-bar-fill"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-card kpi-card--status" id="kpi-status">
+            <div class="kpi-icon kpi-icon--amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="kpi-body">
+              <span class="kpi-label">Grain Status</span>
+              <span class="status-chip" id="val-status">NO DATA</span>
+            </div>
+          </div>
+
+          <div class="kpi-card" id="kpi-uptime">
+            <div class="kpi-icon kpi-icon--purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="kpi-body">
+              <span class="kpi-label">API Uptime</span>
+              <span class="kpi-value kpi-value--sm" id="val-uptime">—</span>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ── SILO PANEL ── -->
+        <section class="panel silo-panel">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2 class="panel-title">Container Visual</h2>
+              <span class="panel-sub">Ultrasonic depth mapping</span>
+            </div>
+            <div class="silo-meta-chips">
+              <span class="meta-chip" id="chip-height">H: 100 cm</span>
+              <span class="meta-chip meta-chip--amber" id="chip-threshold">Low: 25%</span>
+            </div>
+          </div>
+
+          <div class="silo-scene">
+            <!-- Left: silo diagram -->
+            <div class="silo-diagram-wrap">
+              <div class="silo-scale">
+                <div class="scale-mark" style="top:0"><span>100%</span></div>
+                <div class="scale-mark" style="top:25%"><span>75%</span></div>
+                <div class="scale-mark scale-mark--warn" style="top:50%"><span>50%</span></div>
+                <div class="scale-mark scale-mark--warn" style="top:75%"><span>25%</span></div>
+                <div class="scale-mark" style="top:100%"><span>0%</span></div>
+              </div>
+
+              <div class="silo-body" id="silo-body">
+                <!-- Sensor block on top -->
+                <div class="silo-sensor-top">
+                  <div class="sensor-chip">
+                    <div class="sensor-eye" id="sensor-eye-l"></div>
+                    <div class="sensor-eye" id="sensor-eye-r"></div>
+                  </div>
+                  <span class="sensor-chip-label">HC-SR04</span>
+                </div>
+
+                <!-- Wall highlights -->
+                <div class="silo-wall-left"></div>
+                <div class="silo-wall-right"></div>
+
+                <!-- Distance beam -->
+                <div class="silo-beam" id="silo-beam"></div>
+
+                <!-- Grain fill -->
+                <div class="silo-grain" id="silo-grain">
+                  <div class="grain-top" id="grain-top"></div>
+                  <div class="grain-fill-body" id="grain-fill-body">
+                    <canvas class="grain-canvas" id="grain-canvas"></canvas>
+                  </div>
+                </div>
+
+                <!-- Percentage badge inside silo -->
+                <div class="silo-pct-badge" id="silo-pct-badge">—</div>
+              </div>
+            </div>
+
+            <!-- Right: stats column -->
+            <div class="silo-stats-col">
+              <div class="sstat-row">
+                <span class="sstat-label">Distance to grain</span>
+                <span class="sstat-value mono" id="sstat-distance">— cm</span>
+              </div>
+              <div class="sstat-divider"></div>
+              <div class="sstat-row">
+                <span class="sstat-label">Grain depth</span>
+                <span class="sstat-value mono" id="sstat-depth">— cm</span>
+              </div>
+              <div class="sstat-divider"></div>
+              <div class="sstat-row">
+                <span class="sstat-label">Fill volume</span>
+                <span class="sstat-value mono" id="sstat-fill">—%</span>
+              </div>
+              <div class="sstat-divider"></div>
+              <div class="sstat-row">
+                <span class="sstat-label">Status</span>
+                <span class="sstat-value" id="sstat-status">—</span>
+              </div>
+              <div class="sstat-divider"></div>
+              <div class="sstat-row">
+                <span class="sstat-label">Last reading</span>
+                <span class="sstat-value mono sstat-value--sm" id="sstat-time">Never</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── LED PANEL ── -->
+        <section class="panel led-panel">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2 class="panel-title">LED Indicators</h2>
+              <span class="panel-sub">GPIO output state</span>
+            </div>
+          </div>
+
+          <div class="led-grid">
+            <div class="led-card" id="led-red-card">
+              <div class="led-stage">
+                <div class="led-halo led-halo--red" id="led-red-halo"></div>
+                <div class="led-orb led-orb--red" id="led-red-orb">
+                  <div class="led-specular"></div>
+                </div>
+              </div>
+              <div class="led-meta">
+                <span class="led-color-name">Red LED</span>
+                <code class="led-gpio">GPIO 25</code>
+                <div class="led-state-pill" id="led-red-state-pill">OFF</div>
+              </div>
+            </div>
+
+            <div class="led-center-divider">
+              <div class="led-rule"></div>
+              <span class="led-center-label">LOGIC</span>
+              <div class="led-rule"></div>
+            </div>
+
+            <div class="led-card" id="led-green-card">
+              <div class="led-stage">
+                <div class="led-halo led-halo--green" id="led-green-halo"></div>
+                <div class="led-orb led-orb--green" id="led-green-orb">
+                  <div class="led-specular"></div>
+                </div>
+              </div>
+              <div class="led-meta">
+                <span class="led-color-name">Green LED</span>
+                <code class="led-gpio">GPIO 26</code>
+                <div class="led-state-pill" id="led-green-state-pill">OFF</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="led-legend-row">
+            <div class="led-legend-item">
+              <span class="ll-dot ll-dot--red"></span>
+              <span>LOW grain / Sensor error</span>
+            </div>
+            <div class="led-legend-item">
+              <span class="ll-dot ll-dot--green"></span>
+              <span>NORMAL grain level</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── CHART PANEL ── -->
+        <section class="panel chart-panel">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2 class="panel-title">Distance History</h2>
+              <span class="panel-sub">Last 20 readings · lower = more grain</span>
+            </div>
+            <div class="chart-legend">
+              <span class="cl-dot cl-dot--green"></span><span class="cl-label">Distance (cm)</span>
+              <span class="cl-dot cl-dot--amber"></span><span class="cl-label">Low threshold</span>
+            </div>
+          </div>
+          <div class="chart-area">
+            <canvas id="history-chart"></canvas>
+          </div>
+        </section>
+
+        <!-- ── TABLE PANEL ── -->
+        <section class="panel table-panel">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <h2 class="panel-title">Recent Readings</h2>
+              <span class="panel-sub" id="table-count">— records</span>
+            </div>
+            <button class="icon-btn" id="btn-refresh-table" title="Refresh table">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"/></svg>
+              Refresh
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table id="readings-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Timestamp</th>
+                  <th>Device</th>
+                  <th>Distance</th>
+                  <th>Fill %</th>
+                  <th>Status</th>
+                  <th>🔴</th>
+                  <th>🟢</th>
+                </tr>
+              </thead>
+              <tbody id="readings-tbody">
+                <tr><td colspan="8" class="table-empty">No readings yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- FOOTER -->
+      <footer class="app-footer">
+        <span>Smart Grain Storage Monitoring System &mdash; College Demo Project</span>
+        <span class="footer-hw">ESP32 · HC-SR04 (TRIG: GPIO 5 · ECHO: GPIO 18) · FastAPI · SQLite</span>
+      </footer>
+    </div><!-- /main-area -->
+  </div><!-- /app-shell -->
+
+  <script src="script.js"></script>
+</body>
+</html>
