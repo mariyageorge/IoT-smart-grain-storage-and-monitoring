@@ -57,7 +57,7 @@
 const char* WIFI_SSID       = "YourWiFiSSID";
 const char* WIFI_PASSWORD   = "YourWiFiPassword";
 // Use your computer's LAN IP address, NOT localhost or 127.0.0.1
-const char* BACKEND_URL     = "http://192.168.1.100:8000";
+const char* BACKEND_URL     = "http://192.168.1.8:8000";
 const char* DEVICE_ID       = "ESP32-GRAIN-01";
 /* ────────────────────────────────────────────────────────────────────── */
 
