@@ -25,8 +25,8 @@ from pydantic import BaseModel, Field, field_validator
 DB_PATH = "grain_monitor.db"
 
 DEFAULT_CONFIG = {
-    "container_height_cm": 7.0,   # full container height in cm
-    "low_threshold_pct": 28.6,    # 2.0 cm out of 7.0 cm → LOW status when depth < 2 cm
+    "container_height_cm": 9.0,   # full container height in cm
+    "low_threshold_pct": 22.2,    # 2.0 cm out of 9.0 cm → LOW status when depth <= 2 cm
     "device_id": "ESP32-GRAIN-01",
 }
 

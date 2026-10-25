@@ -59,9 +59,9 @@ const char* WIFI_PASSWORD   = "george2371";
 // Use your computer's LAN IP address, NOT localhost or 127.0.0.1
 const char* BACKEND_URL     = "http://192.168.1.8:8000";
 const char* DEVICE_ID       = "ESP32-GRAIN-01";
-const float CONTAINER_HEIGHT_CM = 7.0f;   // Physical container height in cm
-const float LOW_THRESHOLD_CM    = 2.0f;   // Below 2.0 cm grain depth is LOW
-const float LOW_THRESHOLD_PCT   = 28.6f;  // (2.0 / 7.0) * 100 = 28.57%
+const float CONTAINER_HEIGHT_CM = 9.0f;   // Physical container height in cm
+const float LOW_THRESHOLD_CM    = 2.0f;   // Below 2.0 cm grain depth is LOW (distance >= 7.0 cm)
+const float LOW_THRESHOLD_PCT   = 22.2f;  // (2.0 / 9.0) * 100 = 22.22%
 /* ────────────────────────────────────────────────────────────────────── */
 
 /* ─── GPIO Pins ─────────────────────────────────────────────────────── */
@@ -191,6 +191,16 @@ bool postReading(float distanceCm, bool redLed, bool greenLed) {
     String response = http.getString();
     Serial.print("[HTTP] 201 Created: ");
     Serial.println(response);
+
+    // Sync LEDs with backend calculation
+    StaticJsonDocument<512> resDoc;
+    DeserializationError err = deserializeJson(resDoc, response);
+    if (!err && resDoc.containsKey("red_led") && resDoc.containsKey("green_led")) {
+      bool srvRed = resDoc["red_led"].as<bool>();
+      bool srvGreen = resDoc["green_led"].as<bool>();
+      controlLEDs(srvRed, srvGreen);
+    }
+
     http.end();
     return true;
   } else {
@@ -297,6 +307,10 @@ void loop() {
   }
 
   controlLEDs(redOn, greenOn);
+  Serial.printf("[LED State] %s --> RED LED (GPIO 25): %s | GREEN LED (GPIO 26): %s\n",
+                redOn ? "LOW / ALERT" : "NORMAL",
+                redOn ? "HIGH (ON)" : "LOW (OFF)",
+                greenOn ? "HIGH (ON)" : "LOW (OFF)");
 
   /* ── 4. POST reading to FastAPI ──────────────────────────────────── */
   bool ok = postReading(distance, redOn, greenOn);

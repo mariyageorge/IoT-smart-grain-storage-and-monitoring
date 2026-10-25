@@ -22,9 +22,9 @@ const CONFIG = {
   POLL_INTERVAL_MS: 3000,
   MAX_CHART_POINTS: 20,
   MAX_TABLE_ROWS: 50,
-  DEFAULT_HEIGHT_CM: 7.0,
+  DEFAULT_HEIGHT_CM: 9.0,
   DEFAULT_LOW_PCT: 28.6,
-  CYLINDER_RADIUS_CM: 4.0, // Small container scale (~8cm diameter)
+  CYLINDER_RADIUS_CM: 3.0, // Small container scale (~8cm diameter)
 };
 
 // Safe API URL normalizer (strips accidental /api/readings suffix)
