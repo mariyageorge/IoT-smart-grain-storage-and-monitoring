@@ -308,3 +308,12 @@ These can be updated via `PUT /api/config` without restarting the server.
 ---
 
 *Smart Grain Storage Monitoring System — College Demo Project*
+
+
+
+Press the Windows Key, type powershell.
+Right-click Windows PowerShell → click Run as administrator.
+Paste and run this command:
+powershell
+netsh advfirewall firewall add rule name="FastAPI 8000" dir=in action=allow protocol=TCP localport=8000
+It will say: Ok.

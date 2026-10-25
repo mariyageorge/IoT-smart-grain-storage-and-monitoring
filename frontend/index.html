@@ -1,18 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Industrial IoT Smart Grain Storage & Monitoring System — SCADA Dashboard for ESP32 and HC-SR04 Ultrasonic Sensor." />
+  <meta name="description"
+    content="Industrial IoT Smart Grain Storage & Monitoring System — SCADA Dashboard for ESP32 and HC-SR04 Ultrasonic Sensor." />
   <title>Smart Grain Storage Monitor | Industrial IoT SCADA</title>
-  
+
   <!-- Modern Industrial Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body class="theme-dark">
 
   <!-- ================= TOP NOTIFICATION / DEMO BANNER ================= -->
@@ -22,10 +27,15 @@
         <span class="sim-pulse-dot"></span>
         <span class="sim-title">HARDWARE SIMULATOR ACTIVE</span>
       </div>
-      <span class="sim-desc">Interacting with virtual ESP32 sensor rig. Slide or pick presets below to test system response.</span>
+      <span class="sim-desc">Interacting with virtual ESP32 sensor rig. Slide or pick presets below to test system
+        response.</span>
       <div class="sim-banner-actions">
-        <button id="btn-banner-sync" class="banner-btn banner-btn--sync" title="Push simulated ticks to FastAPI backend">
-          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"/></svg>
+        <button id="btn-banner-sync" class="banner-btn banner-btn--sync"
+          title="Push simulated ticks to FastAPI backend">
+          <svg viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" />
+          </svg>
           <span id="banner-sync-text">Sync to API: ON</span>
         </button>
         <button id="btn-exit-sim" class="banner-btn banner-btn--exit">Exit Simulator</button>
@@ -41,14 +51,15 @@
       <div class="header-brand">
         <div class="brand-emblem">
           <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="32" height="32" rx="8" fill="url(#brand-grad)"/>
-            <path d="M16 6L23 11V21L16 26L9 21V11L16 6Z" stroke="#38bdf8" stroke-width="1.8" stroke-linejoin="round"/>
-            <circle cx="16" cy="16" r="3.5" fill="#34d399"/>
-            <path d="M16 6V12.5M16 19.5V26M9 11L13.5 14M18.5 18L23 21M23 11L18.5 14M13.5 18L9 21" stroke="#38bdf8" stroke-width="1.4" stroke-opacity="0.6"/>
+            <rect width="32" height="32" rx="8" fill="url(#brand-grad)" />
+            <path d="M16 6L23 11V21L16 26L9 21V11L16 6Z" stroke="#38bdf8" stroke-width="1.8" stroke-linejoin="round" />
+            <circle cx="16" cy="16" r="3.5" fill="#34d399" />
+            <path d="M16 6V12.5M16 19.5V26M9 11L13.5 14M18.5 18L23 21M23 11L18.5 14M13.5 18L9 21" stroke="#38bdf8"
+              stroke-width="1.4" stroke-opacity="0.6" />
             <defs>
               <linearGradient id="brand-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stop-color="#0f172a"/>
-                <stop offset="100%" stop-color="#020617"/>
+                <stop offset="0%" stop-color="#0f172a" />
+                <stop offset="100%" stop-color="#020617" />
               </linearGradient>
             </defs>
           </svg>
@@ -92,26 +103,44 @@
       <!-- Header Action Controls -->
       <div class="header-actions">
         <!-- Audio Alarm Toggle -->
-        <button id="btn-audio-toggle" class="scada-btn scada-btn--icon" title="Toggle Audible Alarm on Low Grain Warning" aria-label="Toggle Alarm Sound">
-          <svg id="icon-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-          <svg id="icon-sound-off" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        <button id="btn-audio-toggle" class="scada-btn scada-btn--icon"
+          title="Toggle Audible Alarm on Low Grain Warning" aria-label="Toggle Alarm Sound">
+          <svg id="icon-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+          </svg>
+          <svg id="icon-sound-off" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <line x1="23" y1="9" x2="17" y2="15" />
+            <line x1="17" y1="9" x2="23" y2="15" />
+          </svg>
         </button>
 
         <!-- Hardware Simulator Drawer Toggle -->
         <button id="btn-sim-drawer" class="scada-btn scada-btn--highlight" title="Open Interactive Test Bench & Slider">
-          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+          <svg viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+              clip-rule="evenodd" />
+          </svg>
           <span>Test Bench</span>
         </button>
 
         <!-- Calibration Modal Toggle -->
         <button id="btn-open-config" class="scada-btn" title="Calibrate Silo Dimensions & Thresholds">
-          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"/></svg>
+          <svg viewBox="0 0 20 20" fill="currentColor">
+            <path
+              d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
+          </svg>
           <span>Calibrate</span>
         </button>
 
         <!-- Refresh Button -->
         <button id="btn-refresh-all" class="scada-btn scada-btn--icon" title="Refresh Live Readings">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+          </svg>
         </button>
       </div>
     </header>
@@ -146,7 +175,8 @@
               <span class="p-icon">⚖️</span>
               <span class="p-text">Normal (50%)</span>
             </button>
-            <button class="preset-btn preset-btn--warn" data-dist="5.5" title="Critical low grain level: 1.5 cm depth (< 2 cm threshold)">
+            <button class="preset-btn preset-btn--warn" data-dist="5.5"
+              title="Critical low grain level: 1.5 cm depth (< 2 cm threshold)">
               <span class="p-icon">⚠️</span>
               <span class="p-text">Low Alert (&le;2cm)</span>
             </button>
@@ -181,7 +211,9 @@
           <div class="kpi-header">
             <span class="kpi-title">GRAIN FILL VOLUME</span>
             <div class="kpi-icon-wrap kpi-icon-wrap--emerald">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+              </svg>
             </div>
           </div>
           <div class="kpi-main">
@@ -206,7 +238,11 @@
           <div class="kpi-header">
             <span class="kpi-title">HEADSPACE DISTANCE</span>
             <div class="kpi-icon-wrap kpi-icon-wrap--sky">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="2" x2="12" y2="22"/><polyline points="8 6 12 2 16 6"/><polyline points="8 18 12 22 16 18"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="2" x2="12" y2="22" />
+                <polyline points="8 6 12 2 16 6" />
+                <polyline points="8 18 12 22 16 18" />
+              </svg>
             </div>
           </div>
           <div class="kpi-main">
@@ -231,7 +267,11 @@
           <div class="kpi-header">
             <span class="kpi-title">STORAGE OPERATING STATUS</span>
             <div class="kpi-icon-wrap kpi-icon-wrap--amber" id="status-icon-wrap">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
             </div>
           </div>
           <div class="kpi-main">
@@ -255,7 +295,18 @@
           <div class="kpi-header">
             <span class="kpi-title">SCADA / ESP32 TELEMETRY</span>
             <div class="kpi-icon-wrap kpi-icon-wrap--purple">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="4" y="4" width="16" height="16" rx="2" />
+                <rect x="9" y="9" width="6" height="6" />
+                <line x1="9" y1="1" x2="9" y2="4" />
+                <line x1="15" y1="1" x2="15" y2="4" />
+                <line x1="9" y1="20" x2="9" y2="23" />
+                <line x1="15" y1="20" x2="15" y2="23" />
+                <line x1="20" y1="9" x2="23" y2="9" />
+                <line x1="20" y1="14" x2="23" y2="14" />
+                <line x1="1" y1="9" x2="4" y2="9" />
+                <line x1="1" y1="14" x2="4" y2="14" />
+              </svg>
             </div>
           </div>
           <div class="kpi-main">
@@ -311,11 +362,14 @@
 
               <!-- Left Volumetric Ruler Scale -->
               <div class="silo-ruler">
-                <div class="ruler-mark" style="top: 0%"><span class="ruler-num">100%</span><span class="ruler-sub" id="ruler-h-top">100cm</span></div>
+                <div class="ruler-mark" style="top: 0%"><span class="ruler-num">100%</span><span class="ruler-sub"
+                    id="ruler-h-top">100cm</span></div>
                 <div class="ruler-mark" style="top: 25%"><span class="ruler-num">75%</span></div>
                 <div class="ruler-mark" style="top: 50%"><span class="ruler-num">50%</span></div>
-                <div class="ruler-mark ruler-mark--warn" style="top: 75%"><span class="ruler-num">25%</span><span class="ruler-sub">LOW ALARM</span></div>
-                <div class="ruler-mark" style="top: 100%"><span class="ruler-num">0%</span><span class="ruler-sub">0cm</span></div>
+                <div class="ruler-mark ruler-mark--warn" style="top: 75%"><span class="ruler-num">25%</span><span
+                    class="ruler-sub">LOW ALARM</span></div>
+                <div class="ruler-mark" style="top: 100%"><span class="ruler-num">0%</span><span
+                    class="ruler-sub">0cm</span></div>
               </div>
 
               <!-- Cylindrical Silo Vessel Body -->
@@ -353,7 +407,7 @@
                   <div class="sonar-wave sonar-wave-1"></div>
                   <div class="sonar-wave sonar-wave-2"></div>
                   <div class="sonar-wave sonar-wave-3"></div>
-                  
+
                   <!-- Vertical Distance Beam & Bracket -->
                   <div class="headspace-bracket" id="headspace-bracket">
                     <div class="bracket-top-tick"></div>
@@ -479,7 +533,9 @@
             <div class="led-interlock">
               <div class="interlock-line"></div>
               <div class="interlock-box">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4" />
+                </svg>
                 <span>MUTUAL LOGIC</span>
               </div>
               <div class="interlock-line"></div>
@@ -507,14 +563,22 @@
           <!-- Hardware Breadboard / Pinout Schematic Card -->
           <div class="schematic-summary">
             <div class="schematic-title">
-              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                  d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
+                  clip-rule="evenodd" />
+              </svg>
               <span>ESP32 Hardware Interconnects</span>
             </div>
             <div class="schematic-grid">
-              <div class="pin-pill"><span class="pin-no">GPIO 5</span><span class="pin-role">TRIG (Ultrasonic Out)</span></div>
-              <div class="pin-pill"><span class="pin-no">GPIO 18</span><span class="pin-role">ECHO (Voltage Divider)</span></div>
-              <div class="pin-pill"><span class="pin-no">GPIO 25</span><span class="pin-role">RED LED (330&Omega; Resistor)</span></div>
-              <div class="pin-pill"><span class="pin-no">GPIO 26</span><span class="pin-role">GREEN LED (330&Omega; Resistor)</span></div>
+              <div class="pin-pill"><span class="pin-no">GPIO 5</span><span class="pin-role">TRIG (Ultrasonic
+                  Out)</span></div>
+              <div class="pin-pill"><span class="pin-no">GPIO 18</span><span class="pin-role">ECHO (Voltage
+                  Divider)</span></div>
+              <div class="pin-pill"><span class="pin-no">GPIO 25</span><span class="pin-role">RED LED (330&Omega;
+                  Resistor)</span></div>
+              <div class="pin-pill"><span class="pin-no">GPIO 26</span><span class="pin-role">GREEN LED (330&Omega;
+                  Resistor)</span></div>
             </div>
           </div>
 
@@ -601,14 +665,21 @@
             </div>
 
             <!-- Export to CSV -->
-            <button id="btn-export-csv" class="scada-btn scada-btn--export" title="Download historical readings as CSV file for lab records">
-              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            <button id="btn-export-csv" class="scada-btn scada-btn--export"
+              title="Download historical readings as CSV file for lab records">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                  d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                  clip-rule="evenodd" />
+              </svg>
               <span>Export CSV</span>
             </button>
 
             <!-- Refresh Table -->
             <button id="btn-refresh-table" class="scada-btn scada-btn--icon" title="Refresh Log Table">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+              </svg>
             </button>
           </div>
         </div>
@@ -674,13 +745,16 @@
       <form id="config-form" class="modal-body">
         <div class="form-group">
           <label for="cfg-container-height" class="form-label">Container Total Height (cm):</label>
-          <input type="number" id="cfg-container-height" class="scada-input" min="1" max="1000" step="0.1" value="7.0" required />
-          <span class="form-hint">Physical depth from HC-SR04 ultrasonic sensor lens down to empty silo bottom (7.0 cm).</span>
+          <input type="number" id="cfg-container-height" class="scada-input" min="1" max="1000" step="0.1" value="7.0"
+            required />
+          <span class="form-hint">Physical depth from HC-SR04 ultrasonic sensor lens down to empty silo bottom (7.0
+            cm).</span>
         </div>
 
         <div class="form-group">
           <label for="cfg-low-threshold" class="form-label">Low Grain Alert Threshold (%):</label>
-          <input type="number" id="cfg-low-threshold" class="scada-input" min="1" max="99" step="0.1" value="28.6" required />
+          <input type="number" id="cfg-low-threshold" class="scada-input" min="1" max="99" step="0.1" value="28.6"
+            required />
           <span class="form-hint">Trigger Red LED & alert when depth &le; 2.0 cm (28.6% of 7.0 cm).</span>
         </div>
 
@@ -701,4 +775,5 @@
   <!-- Pure Vanilla Javascript Entry Point -->
   <script src="script.js"></script>
 </body>
+
 </html>
