@@ -22,9 +22,9 @@ const CONFIG = {
   POLL_INTERVAL_MS: 3000,
   MAX_CHART_POINTS: 20,
   MAX_TABLE_ROWS: 50,
-  DEFAULT_HEIGHT_CM: 100.0,
-  DEFAULT_LOW_PCT: 25.0,
-  CYLINDER_RADIUS_CM: 25.0, // Used for metric volume estimation (V = pi * r^2 * h)
+  DEFAULT_HEIGHT_CM: 7.0,
+  DEFAULT_LOW_PCT: 28.6,
+  CYLINDER_RADIUS_CM: 4.0, // Small container scale (~8cm diameter)
 };
 
 // Safe API URL normalizer (strips accidental /api/readings suffix)
@@ -803,12 +803,12 @@ function startAutoCycle() {
   DOM.btnAutoWave.classList.add("active");
   DOM.autoWaveText.textContent = "Auto Cycle: ACTIVE";
 
-  let currDist = parseFloat(DOM.simSlider.value) || 45.0;
+  let currDist = parseFloat(DOM.simSlider.value) || 3.5;
   STATE.autoWaveTimer = setInterval(() => {
-    currDist += 2.5 * STATE.autoWaveDir;
-    if (currDist >= 98) {
+    currDist += 0.25 * STATE.autoWaveDir;
+    if (currDist >= 6.5) {
       STATE.autoWaveDir = -1;
-    } else if (currDist <= 15) {
+    } else if (currDist <= 1.2) {
       STATE.autoWaveDir = 1;
     }
     DOM.simSlider.value = currDist;
@@ -1051,7 +1051,7 @@ function initSystem() {
   setTimeout(() => {
     if (STATE.historyReadings.length === 0 || STATE.latestDistance == null) {
       setSimulatorMode(true);
-      injectVirtualReading(45.0);
+      injectVirtualReading(3.5);
     }
   }, 800);
 }

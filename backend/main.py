@@ -12,6 +12,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import List, Optional
 
+# pyrefly: ignore[missing-import]
 import aiosqlite
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,8 +25,8 @@ from pydantic import BaseModel, Field, field_validator
 DB_PATH = "grain_monitor.db"
 
 DEFAULT_CONFIG = {
-    "container_height_cm": 100.0,   # full container height in cm
-    "low_threshold_pct": 25.0,       # below this % → LOW status
+    "container_height_cm": 7.0,   # full container height in cm
+    "low_threshold_pct": 28.6,    # 2.0 cm out of 7.0 cm → LOW status when depth < 2 cm
     "device_id": "ESP32-GRAIN-01",
 }
 

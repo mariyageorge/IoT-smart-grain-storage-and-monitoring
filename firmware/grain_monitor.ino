@@ -54,13 +54,14 @@
 #include <ArduinoJson.h>
 
 /* ─── USER CONFIG — edit these values ───────────────────────────────── */
-const char* WIFI_SSID       = "YourWiFiSSID";
-const char* WIFI_PASSWORD   = "YourWiFiPassword";
+const char* WIFI_SSID       = "Mathilel";
+const char* WIFI_PASSWORD   = "george2371";
 // Use your computer's LAN IP address, NOT localhost or 127.0.0.1
 const char* BACKEND_URL     = "http://192.168.1.8:8000";
 const char* DEVICE_ID       = "ESP32-GRAIN-01";
-const float CONTAINER_HEIGHT_CM = 100.0f; // Physical container height in cm
-const float LOW_THRESHOLD_PCT   = 25.0f;  // Trigger Red LED below this %
+const float CONTAINER_HEIGHT_CM = 7.0f;   // Physical container height in cm
+const float LOW_THRESHOLD_CM    = 2.0f;   // Below 2.0 cm grain depth is LOW
+const float LOW_THRESHOLD_PCT   = 28.6f;  // (2.0 / 7.0) * 100 = 28.57%
 /* ────────────────────────────────────────────────────────────────────── */
 
 /* ─── GPIO Pins ─────────────────────────────────────────────────────── */
@@ -285,12 +286,13 @@ void loop() {
     if (grainDepth > CONTAINER_HEIGHT_CM) grainDepth = CONTAINER_HEIGHT_CM;
     float fillPct = (grainDepth / CONTAINER_HEIGHT_CM) * 100.0f;
 
-    if (fillPct < LOW_THRESHOLD_PCT) {
-      redOn   = true;   // Low grain warning
+    // LOW alert if grain depth is below 2.0 cm
+    if (grainDepth <= LOW_THRESHOLD_CM) {
+      redOn   = true;   // Low grain warning (<= 2 cm)
       greenOn = false;
     } else {
       redOn   = false;
-      greenOn = true;   // Normal grain level
+      greenOn = true;   // Normal grain level (> 2 cm)
     }
   }
 

@@ -123,32 +123,32 @@
           <div class="slider-header">
             <span class="sim-label">VIRTUAL HC-SR04 SENSOR SLIDER</span>
             <div class="slider-readout">
-              <span id="slider-dist-val">45.0</span>
+              <span id="slider-dist-val">3.5</span>
               <span class="slider-unit">cm</span>
-              <span class="slider-fill-preview" id="slider-fill-preview">(55.0% Fill)</span>
+              <span class="slider-fill-preview" id="slider-fill-preview">(50.0% Fill)</span>
             </div>
           </div>
           <div class="slider-wrap">
-            <span class="slider-end-label">5 cm (Full)</span>
-            <input type="range" id="sim-distance-slider" min="5" max="115" step="0.5" value="45" />
-            <span class="slider-end-label">115 cm (Empty)</span>
+            <span class="slider-end-label">1.0 cm (Full)</span>
+            <input type="range" id="sim-distance-slider" min="1.0" max="8.0" step="0.1" value="3.5" />
+            <span class="slider-end-label">7.0 cm (Empty)</span>
           </div>
         </div>
 
         <div class="sim-drawer-col sim-drawer-col--presets">
-          <span class="sim-label">QUICK SCENARIOS</span>
+          <span class="sim-label">QUICK SCENARIOS (7 cm Container)</span>
           <div class="preset-buttons">
-            <button class="preset-btn" data-dist="15" title="Silo nearly full">
+            <button class="preset-btn" data-dist="1.0" title="Silo nearly full (6.0 cm depth)">
               <span class="p-icon">🌾</span>
-              <span class="p-text">High (85%)</span>
+              <span class="p-text">High (86%)</span>
             </button>
-            <button class="preset-btn active" data-dist="45" title="Normal healthy fill level">
+            <button class="preset-btn active" data-dist="3.5" title="Normal healthy fill level (3.5 cm depth)">
               <span class="p-icon">⚖️</span>
-              <span class="p-text">Normal (55%)</span>
+              <span class="p-text">Normal (50%)</span>
             </button>
-            <button class="preset-btn preset-btn--warn" data-dist="88" title="Critical low grain level triggering Red LED">
+            <button class="preset-btn preset-btn--warn" data-dist="5.5" title="Critical low grain level: 1.5 cm depth (< 2 cm threshold)">
               <span class="p-icon">⚠️</span>
-              <span class="p-text">Low Alert (12%)</span>
+              <span class="p-text">Low Alert (&le;2cm)</span>
             </button>
             <button class="preset-btn preset-btn--err" data-dist="-1" title="HC-SR04 ultrasonic echo timeout error">
               <span class="p-icon">❌</span>
@@ -674,14 +674,14 @@
       <form id="config-form" class="modal-body">
         <div class="form-group">
           <label for="cfg-container-height" class="form-label">Container Total Height (cm):</label>
-          <input type="number" id="cfg-container-height" class="scada-input" min="10" max="1000" step="0.5" value="100.0" required />
-          <span class="form-hint">Physical depth from HC-SR04 ultrasonic sensor lens down to empty silo bottom.</span>
+          <input type="number" id="cfg-container-height" class="scada-input" min="1" max="1000" step="0.1" value="7.0" required />
+          <span class="form-hint">Physical depth from HC-SR04 ultrasonic sensor lens down to empty silo bottom (7.0 cm).</span>
         </div>
 
         <div class="form-group">
           <label for="cfg-low-threshold" class="form-label">Low Grain Alert Threshold (%):</label>
-          <input type="number" id="cfg-low-threshold" class="scada-input" min="1" max="99" step="1" value="25.0" required />
-          <span class="form-hint">When fill falls below this percentage, Red LED (GPIO 25) fires and alarm sounds.</span>
+          <input type="number" id="cfg-low-threshold" class="scada-input" min="1" max="99" step="0.1" value="28.6" required />
+          <span class="form-hint">Trigger Red LED & alert when depth &le; 2.0 cm (28.6% of 7.0 cm).</span>
         </div>
 
         <div class="form-group">
