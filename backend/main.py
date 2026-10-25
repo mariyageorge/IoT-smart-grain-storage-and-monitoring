@@ -345,6 +345,7 @@ async def get_config():
 
 
 @app.put("/api/config", response_model=ConfigOut, tags=["Configuration"])
+@app.post("/api/config", response_model=ConfigOut, tags=["Configuration"])
 async def update_config(payload: ConfigIn):
     async with aiosqlite.connect(DB_PATH) as db:
         if payload.container_height_cm is not None:
@@ -365,3 +366,10 @@ async def update_config(payload: ConfigIn):
         low_threshold_pct=float(cfg["low_threshold_pct"]),
         device_id=cfg["device_id"],
     )
+
+
+if __name__ == "__main__":
+    import uvicorn
+    print("Starting Smart Grain Monitor FastAPI Backend on http://0.0.0.0:8000 ...")
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+

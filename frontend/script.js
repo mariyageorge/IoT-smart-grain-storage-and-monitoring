@@ -29,7 +29,11 @@ const CONFIG = {
 
 // Safe API URL normalizer (strips accidental /api/readings suffix)
 function getApiBase() {
-  let u = (CONFIG.API_BASE_URL || "http://192.168.1.8:8000").trim();
+  // If running in browser on localhost or 127.0.0.1, connect directly to local FastAPI backend
+  if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+    return "http://localhost:8000";
+  }
+  let u = (CONFIG.API_BASE_URL || "http://localhost:8000").trim();
   return u.replace(/\/api\/readings\/?$/, "").replace(/\/api\/?$/, "").replace(/\/+$/, "");
 }
 
