@@ -18,21 +18,27 @@
 
 /* ─── 1. GLOBAL CONFIGURATION & CONSTANTS ─── */
 const CONFIG = {
-  API_BASE_URL:     "http://localhost:8000",
+  API_BASE_URL: "http://192.168.1.8:8000",
   POLL_INTERVAL_MS: 3000,
   MAX_CHART_POINTS: 20,
-  MAX_TABLE_ROWS:   50,
+  MAX_TABLE_ROWS: 50,
   DEFAULT_HEIGHT_CM: 100.0,
-  DEFAULT_LOW_PCT:   25.0,
+  DEFAULT_LOW_PCT: 25.0,
   CYLINDER_RADIUS_CM: 25.0, // Used for metric volume estimation (V = pi * r^2 * h)
 };
+
+// Safe API URL normalizer (strips accidental /api/readings suffix)
+function getApiBase() {
+  let u = (CONFIG.API_BASE_URL || "http://192.168.1.8:8000").trim();
+  return u.replace(/\/api\/readings\/?$/, "").replace(/\/api\/?$/, "").replace(/\/+$/, "");
+}
 
 // Bulk densities in kg/L for volume-to-mass calculations
 const GRAIN_PROPERTIES = {
   wheat: { name: "Wheat", density: 0.78, themeClass: "grain-theme-wheat" },
-  corn:  { name: "Yellow Corn", density: 0.72, themeClass: "grain-theme-corn" },
-  rice:  { name: "White Rice", density: 0.85, themeClass: "grain-theme-rice" },
-  soy:   { name: "Soybeans", density: 0.75, themeClass: "grain-theme-soy" },
+  corn: { name: "Yellow Corn", density: 0.72, themeClass: "grain-theme-corn" },
+  rice: { name: "White Rice", density: 0.85, themeClass: "grain-theme-rice" },
+  soy: { name: "Soybeans", density: 0.75, themeClass: "grain-theme-soy" },
 };
 
 /* ─── 2. DOM ELEMENT REGISTRY ─── */
@@ -41,144 +47,144 @@ const $$ = (sel) => document.querySelectorAll(sel);
 
 const DOM = {
   // Telemetry & Header
-  deviceDot:       $("device-dot"),
-  deviceIdText:    $("device-id-text"),
-  connDot:         $("conn-dot"),
-  connLabel:       $("conn-label"),
-  liveClock:       $("live-clock"),
-  btnAudio:        $("btn-audio-toggle"),
-  iconSoundOn:     $("icon-sound-on"),
-  iconSoundOff:    $("icon-sound-off"),
-  btnSimDrawer:    $("btn-sim-drawer"),
-  btnOpenConfig:   $("btn-open-config"),
-  btnRefreshAll:   $("btn-refresh-all"),
+  deviceDot: $("device-dot"),
+  deviceIdText: $("device-id-text"),
+  connDot: $("conn-dot"),
+  connLabel: $("conn-label"),
+  liveClock: $("live-clock"),
+  btnAudio: $("btn-audio-toggle"),
+  iconSoundOn: $("icon-sound-on"),
+  iconSoundOff: $("icon-sound-off"),
+  btnSimDrawer: $("btn-sim-drawer"),
+  btnOpenConfig: $("btn-open-config"),
+  btnRefreshAll: $("btn-refresh-all"),
 
   // Simulator Drawer & Banner
-  simBanner:       $("sim-banner"),
-  btnBannerSync:   $("btn-banner-sync"),
-  bannerSyncText:  $("banner-sync-text"),
-  btnExitSim:      $("btn-exit-sim"),
-  simDrawer:       $("sim-drawer"),
-  simSlider:       $("sim-distance-slider"),
-  sliderDistVal:   $("slider-dist-val"),
-  sliderFillPrev:  $("slider-fill-preview"),
-  presetBtns:      $$(".preset-btn"),
-  btnAutoWave:     $("btn-auto-wave"),
-  autoWaveText:    $("auto-wave-text"),
+  simBanner: $("sim-banner"),
+  btnBannerSync: $("btn-banner-sync"),
+  bannerSyncText: $("banner-sync-text"),
+  btnExitSim: $("btn-exit-sim"),
+  simDrawer: $("sim-drawer"),
+  simSlider: $("sim-distance-slider"),
+  sliderDistVal: $("slider-dist-val"),
+  sliderFillPrev: $("slider-fill-preview"),
+  presetBtns: $$(".preset-btn"),
+  btnAutoWave: $("btn-auto-wave"),
+  autoWaveText: $("auto-wave-text"),
 
   // KPI Metrics
-  valFill:         $("val-fill"),
-  valDistance:     $("val-distance"),
-  valStatus:       $("val-status"),
-  valUptime:       $("val-uptime"),
-  heroStatusPill:  $("hero-status-pill"),
-  statusCardGlow:  $("status-card-glow"),
+  valFill: $("val-fill"),
+  valDistance: $("val-distance"),
+  valStatus: $("val-status"),
+  valUptime: $("val-uptime"),
+  heroStatusPill: $("hero-status-pill"),
+  statusCardGlow: $("status-card-glow"),
   statusExplanation: $("status-explanation"),
   kpiProgressFill: $("kpi-progress-fill"),
   kpiProgressDist: $("kpi-progress-dist"),
-  kpiEstVolume:    $("kpi-est-volume"),
-  kpiEstWeight:    $("kpi-est-weight"),
-  kpiContHeight:   $("kpi-cont-height"),
-  kpiGrainDepth:   $("kpi-grain-depth"),
-  kpiLowThresh:    $("kpi-low-thresh"),
-  alarmStateTxt:   $("alarm-state-txt"),
-  valLastSync:     $("val-last-sync"),
-  totalLogsCount:  $("total-logs-count"),
+  kpiEstVolume: $("kpi-est-volume"),
+  kpiEstWeight: $("kpi-est-weight"),
+  kpiContHeight: $("kpi-cont-height"),
+  kpiGrainDepth: $("kpi-grain-depth"),
+  kpiLowThresh: $("kpi-low-thresh"),
+  alarmStateTxt: $("alarm-state-txt"),
+  valLastSync: $("val-last-sync"),
+  totalLogsCount: $("total-logs-count"),
 
   // Silo Visual Workspace
   grainTypeSelect: $("grain-type-select"),
-  siloStructure:   $("silo-structure"),
-  grainReservoir:  $("grain-reservoir"),
-  grainBedBody:    $("grain-bed-body"),
-  grainCanvas:     $("grain-particles-canvas"),
-  siloHudNum:      $("silo-hud-num"),
-  headspaceBracket:$("headspace-bracket"),
-  bracketCm:       $("bracket-cm"),
-  rulerHTop:       $("ruler-h-top"),
+  siloStructure: $("silo-structure"),
+  grainReservoir: $("grain-reservoir"),
+  grainBedBody: $("grain-bed-body"),
+  grainCanvas: $("grain-particles-canvas"),
+  siloHudNum: $("silo-hud-num"),
+  headspaceBracket: $("headspace-bracket"),
+  bracketCm: $("bracket-cm"),
+  rulerHTop: $("ruler-h-top"),
 
   // Silo Diagnostics
-  diagHeadspace:   $("diag-headspace"),
-  diagDepth:       $("diag-depth"),
-  diagFillPct:     $("diag-fill-pct"),
-  diagMass:        $("diag-mass"),
-  diagGrainName:   $("diag-grain-name"),
-  diagStatusText:  $("diag-status-text"),
+  diagHeadspace: $("diag-headspace"),
+  diagDepth: $("diag-depth"),
+  diagFillPct: $("diag-fill-pct"),
+  diagMass: $("diag-mass"),
+  diagGrainName: $("diag-grain-name"),
+  diagStatusText: $("diag-status-text"),
 
   // LED Bulbs
-  lampRedLens:     $("lamp-red-lens"),
-  lampGreenLens:   $("lamp-green-lens"),
-  chipRedState:    $("chip-red-state"),
-  chipGreenState:  $("chip-green-state"),
+  lampRedLens: $("lamp-red-lens"),
+  lampGreenLens: $("lamp-green-lens"),
+  chipRedState: $("chip-red-state"),
+  chipGreenState: $("chip-green-state"),
 
   // Canvas Chart & HUD
-  chartCanvas:     $("scada-trend-chart"),
-  chartWrapper:    $("chart-wrapper"),
-  chartTooltip:    $("chart-tooltip"),
-  ttTime:          $("tt-time"),
-  ttDist:          $("tt-dist"),
-  ttFill:          $("tt-fill"),
-  ttStatus:        $("tt-status"),
-  rangeBtns:       $$(".range-btn"),
-  cstatCurr:       $("cstat-curr"),
-  cstatMin:        $("cstat-min"),
-  cstatMax:        $("cstat-max"),
+  chartCanvas: $("scada-trend-chart"),
+  chartWrapper: $("chart-wrapper"),
+  chartTooltip: $("chart-tooltip"),
+  ttTime: $("tt-time"),
+  ttDist: $("tt-dist"),
+  ttFill: $("tt-fill"),
+  ttStatus: $("tt-status"),
+  rangeBtns: $$(".range-btn"),
+  cstatCurr: $("cstat-curr"),
+  cstatMin: $("cstat-min"),
+  cstatMax: $("cstat-max"),
 
   // Table & Filters
-  scadaTable:      $("scada-table"),
-  readingsTbody:   $("readings-tbody"),
-  filterChips:     $$(".filter-chip"),
-  btnExportCsv:    $("btn-export-csv"),
+  scadaTable: $("scada-table"),
+  readingsTbody: $("readings-tbody"),
+  filterChips: $$(".filter-chip"),
+  btnExportCsv: $("btn-export-csv"),
   btnRefreshTable: $("btn-refresh-table"),
-  tableSubtitle:   $("table-subtitle"),
+  tableSubtitle: $("table-subtitle"),
 
   // Calibration Modal
-  configModal:     $("config-modal"),
-  modalBackdrop:   $("modal-backdrop"),
-  btnCloseModal:   $("btn-close-modal"),
+  configModal: $("config-modal"),
+  modalBackdrop: $("modal-backdrop"),
+  btnCloseModal: $("btn-close-modal"),
   btnCancelConfig: $("btn-cancel-config"),
-  configForm:      $("config-form"),
-  cfgContainerH:   $("cfg-container-height"),
-  cfgLowThresh:    $("cfg-low-threshold"),
-  cfgDeviceId:     $("cfg-device-id"),
+  configForm: $("config-form"),
+  cfgContainerH: $("cfg-container-height"),
+  cfgLowThresh: $("cfg-low-threshold"),
+  cfgDeviceId: $("cfg-device-id"),
 
   // Footer
-  footerStatusPill:$("footer-status-pill"),
+  footerStatusPill: $("footer-status-pill"),
 };
 
 /* ─── 3. APPLICATION STATE STORE ─── */
 const STATE = {
   // Physical parameters
   containerHeight: CONFIG.DEFAULT_HEIGHT_CM,
-  lowThreshold:    CONFIG.DEFAULT_LOW_PCT,
-  deviceId:        "ESP32-GRAIN-01",
-  grainType:       "wheat",
+  lowThreshold: CONFIG.DEFAULT_LOW_PCT,
+  deviceId: "ESP32-GRAIN-01",
+  grainType: "wheat",
 
   // Live telemetry
-  latestDistance:  null,
-  latestFillPct:   null,
-  latestStatus:    "NORMAL",
-  redLedOn:        false,
-  greenLedOn:      false,
+  latestDistance: null,
+  latestFillPct: null,
+  latestStatus: "NORMAL",
+  redLedOn: false,
+  greenLedOn: false,
 
   // Historical data
   historyReadings: [],
-  chartLimit:      20,
-  activeFilter:    "ALL",
+  chartLimit: 20,
+  activeFilter: "ALL",
 
   // Hardware simulator
-  simActive:       false,
+  simActive: false,
   simSyncToServer: true,
-  autoWaveActive:  false,
-  autoWaveTimer:   null,
-  autoWaveDir:     1,
+  autoWaveActive: false,
+  autoWaveTimer: null,
+  autoWaveDir: 1,
 
   // Audio system
-  audioEnabled:    true,
-  audioContext:    null,
-  lastBeepTime:    0,
+  audioEnabled: true,
+  audioContext: null,
+  lastBeepTime: 0,
 
   // Polling timer
-  pollTimer:       null,
+  pollTimer: null,
 };
 
 /* ─── 4. WEB AUDIO ALARM SYNTHESIZER ─── */
@@ -648,8 +654,8 @@ function renderTable() {
         row.grain_status === "NORMAL"
           ? "tbl-pill--normal"
           : row.grain_status === "LOW"
-          ? "tbl-pill--low"
-          : "tbl-pill--error";
+            ? "tbl-pill--low"
+            : "tbl-pill--error";
 
       const ts = new Date(row.timestamp);
       const formattedTs = ts.toLocaleString("en-IN", {
@@ -761,7 +767,7 @@ async function injectVirtualReading(distCm) {
   // If sync enabled, post to actual backend /api/readings
   if (STATE.simSyncToServer && distCm !== -1) {
     try {
-      fetch(`${CONFIG.API_BASE_URL}/api/readings`, {
+      fetch(`${getApiBase()}/api/readings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -771,8 +777,8 @@ async function injectVirtualReading(distCm) {
           green_led: metrics.greenLed,
           timestamp: nowIso,
         }),
-      }).catch(() => {});
-    } catch (_) {}
+      }).catch(() => { });
+    } catch (_) { }
   }
 }
 
@@ -827,8 +833,8 @@ async function fetchApiAll() {
 
   try {
     const [statusRes, readingsRes] = await Promise.all([
-      fetch(`${CONFIG.API_BASE_URL}/api/status`, { signal: AbortSignal.timeout(3000) }),
-      fetch(`${CONFIG.API_BASE_URL}/api/readings?limit=${CONFIG.MAX_TABLE_ROWS}`, { signal: AbortSignal.timeout(3000) }),
+      fetch(`${getApiBase()}/api/status`, { signal: AbortSignal.timeout(3000) }),
+      fetch(`${getApiBase()}/api/readings?limit=${CONFIG.MAX_TABLE_ROWS}`, { signal: AbortSignal.timeout(3000) }),
     ]);
 
     if (!statusRes.ok || !readingsRes.ok) throw new Error("HTTP non-200");
@@ -890,7 +896,7 @@ async function saveCalibration(e) {
 
   // Try pushing to FastAPI server
   try {
-    await fetch(`${CONFIG.API_BASE_URL}/api/config`, {
+    await fetch(`${getApiBase()}/api/config`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -898,7 +904,7 @@ async function saveCalibration(e) {
         low_threshold_pct: newThresh,
       }),
     });
-  } catch (_) {}
+  } catch (_) { }
 
   // Re-render immediate view with updated dimensions
   if (STATE.latestDistance != null) {
