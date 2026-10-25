@@ -59,6 +59,8 @@ const char* WIFI_PASSWORD   = "YourWiFiPassword";
 // Use your computer's LAN IP address, NOT localhost or 127.0.0.1
 const char* BACKEND_URL     = "http://192.168.1.8:8000";
 const char* DEVICE_ID       = "ESP32-GRAIN-01";
+const float CONTAINER_HEIGHT_CM = 100.0f; // Physical container height in cm
+const float LOW_THRESHOLD_PCT   = 25.0f;  // Trigger Red LED below this %
 /* ────────────────────────────────────────────────────────────────────── */
 
 /* ─── GPIO Pins ─────────────────────────────────────────────────────── */
@@ -270,15 +272,26 @@ void loop() {
   }
 
   /* ── 3. Determine LED state (local, immediate feedback) ──────────── */
-  bool redOn   = (distance == SENSOR_ERROR_DISTANCE);
+  bool redOn   = false;
   bool greenOn = false;
 
-  // Note: the server knows the container height and low threshold.
-  // We use a conservative local rule: if sensor is healthy, blink green.
-  // The server's computed status is authoritative for the dashboard.
-  if (distance != SENSOR_ERROR_DISTANCE) {
-    greenOn = true;
-    redOn   = false;
+  if (distance == SENSOR_ERROR_DISTANCE) {
+    redOn   = true;
+    greenOn = false;
+  } else {
+    // Grain Depth = Container Height - Distance
+    float grainDepth = CONTAINER_HEIGHT_CM - distance;
+    if (grainDepth < 0.0f) grainDepth = 0.0f;
+    if (grainDepth > CONTAINER_HEIGHT_CM) grainDepth = CONTAINER_HEIGHT_CM;
+    float fillPct = (grainDepth / CONTAINER_HEIGHT_CM) * 100.0f;
+
+    if (fillPct < LOW_THRESHOLD_PCT) {
+      redOn   = true;   // Low grain warning
+      greenOn = false;
+    } else {
+      redOn   = false;
+      greenOn = true;   // Normal grain level
+    }
   }
 
   controlLEDs(redOn, greenOn);
