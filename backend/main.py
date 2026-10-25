@@ -260,6 +260,7 @@ async def get_status():
 
 
 @app.post("/api/readings", response_model=ReadingOut, status_code=201, tags=["Monitoring"])
+@app.post("/api/reading", response_model=ReadingOut, status_code=201, include_in_schema=False)
 async def post_reading(payload: ReadingIn):
     ts = payload.timestamp or datetime.now(timezone.utc).isoformat()
 
@@ -304,6 +305,7 @@ async def post_reading(payload: ReadingIn):
 
 
 @app.get("/api/readings", response_model=List[ReadingOut], tags=["Monitoring"])
+@app.get("/api/reading", response_model=List[ReadingOut], include_in_schema=False)
 async def get_readings(limit: int = 50):
     if limit < 1 or limit > 500:
         raise HTTPException(status_code=400, detail="limit must be 1-500")
