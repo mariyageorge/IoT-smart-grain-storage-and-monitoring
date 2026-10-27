@@ -5,34 +5,64 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description"
-    content="Industrial IoT Smart Grain Storage & Monitoring System — SCADA Dashboard for ESP32 and HC-SR04 Ultrasonic Sensor." />
-  <title>Smart Grain Storage Monitor | Industrial IoT SCADA</title>
+    content="Grainly — Smart Grain Storage & Volumetric Monitoring Platform for ESP32 and HC-SR04 Ultrasonic Sensor." />
+  <title>Grainly — Smart Grain Storage & Monitoring</title>
 
-  <!-- Modern Industrial Typography -->
+  <!-- Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
     rel="stylesheet" />
 
-  <link rel="stylesheet" href="style.css" />
+  <!-- Critical inline fail-safe styles to guarantee proper dimensions regardless of browser cache -->
+  <style>
+    html, body {
+      background: #F8F5EE !important;
+      color: #2D251E !important;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    }
+    svg {
+      max-width: 100%;
+      height: auto;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .brand-logo-icon svg {
+      width: 24px !important;
+      height: 24px !important;
+      max-width: 24px !important;
+      max-height: 24px !important;
+    }
+    .header-icon-btn svg, .header-btn svg, .nav-link svg {
+      width: 18px !important;
+      height: 18px !important;
+      max-width: 18px !important;
+    }
+  </style>
+
+  <!-- Cache-busted external stylesheet -->
+  <link rel="stylesheet" href="style.css?v=3.5" />
 </head>
 
-<body class="theme-dark">
+<body class="theme-grain-light">
 
-  <!-- ================= TOP NOTIFICATION / DEMO BANNER ================= -->
+  <!-- ================= FLOATING GOLDEN GRAIN AMBIENT CANVAS ================= -->
+  <canvas id="ambient-grain-canvas" class="ambient-grain-canvas"></canvas>
+
+  <!-- ================= TOP SIMULATOR NOTIFICATION BANNER ================= -->
   <div id="sim-banner" class="sim-banner">
     <div class="sim-banner-content">
       <div class="sim-pill">
         <span class="sim-pulse-dot"></span>
-        <span class="sim-title">HARDWARE SIMULATOR ACTIVE</span>
+        <span class="sim-title">Virtual Sensor Bench Active</span>
       </div>
-      <span class="sim-desc">Interacting with virtual ESP32 sensor rig. Slide or pick presets below to test system
-        response.</span>
+      <span class="sim-desc">Simulating ESP32 HC-SR04 ultrasonic readings. Adjust slider to test warning triggers.</span>
       <div class="sim-banner-actions">
-        <button id="btn-banner-sync" class="banner-btn banner-btn--sync"
-          title="Push simulated ticks to FastAPI backend">
-          <svg viewBox="0 0 20 20" fill="currentColor">
+        <button id="btn-banner-sync" class="banner-btn banner-btn--sync" title="Push simulated ticks to FastAPI backend">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd"
               d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" />
           </svg>
@@ -43,701 +73,725 @@
     </div>
   </div>
 
-  <!-- ================= MAIN APPLICATION SHELL ================= -->
-  <div class="scada-layout">
+  <!-- ================= MAIN APP SHELL ================= -->
+  <div class="app-layout">
 
-    <!-- ─── TOP INDUSTRIAL NAVIGATION / TELEMETRY BAR ─── -->
-    <header class="scada-header">
-      <div class="header-brand">
-        <div class="brand-emblem">
-          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="32" height="32" rx="8" fill="url(#brand-grad)" />
-            <path d="M16 6L23 11V21L16 26L9 21V11L16 6Z" stroke="#38bdf8" stroke-width="1.8" stroke-linejoin="round" />
-            <circle cx="16" cy="16" r="3.5" fill="#34d399" />
-            <path d="M16 6V12.5M16 19.5V26M9 11L13.5 14M18.5 18L23 21M23 11L18.5 14M13.5 18L9 21" stroke="#38bdf8"
-              stroke-width="1.4" stroke-opacity="0.6" />
-            <defs>
-              <linearGradient id="brand-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stop-color="#0f172a" />
-                <stop offset="100%" stop-color="#020617" />
-              </linearGradient>
-            </defs>
+    <!-- ─── 1. ENTERPRISE SIDEBAR NAVIGATION ─── -->
+    <aside class="app-sidebar" id="app-sidebar">
+      
+      <!-- Brand Header with Animated Wheat Icon -->
+      <div class="sidebar-brand">
+        <div class="brand-logo-icon">
+          <!-- Animated Golden Wheat Stalk -->
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="wheat-sway-icon">
+            <path d="M12 22V2M12 2C12 5 8 7 8 10C8 12.5 10 14 12 14M12 2C12 5 16 7 16 10C16 12.5 14 14 12 14M12 8C9 10 9 13 9 16C9 18 10.5 19.5 12 20M12 8C15 10 15 13 15 16C15 18 13.5 19.5 12 20" stroke="#D97706" stroke-width="2" stroke-linecap="round"/>
           </svg>
-          <span class="brand-radar-ring"></span>
         </div>
-        <div class="brand-info">
-          <div class="brand-name">
-            <span class="brand-primary">GRAIN-SCADA</span>
-            <span class="brand-tag">PRO v2.4</span>
-          </div>
-          <span class="brand-sub">Smart Grain Storage & Level Monitoring System</span>
+        <div class="brand-titles">
+          <span class="brand-name">Grainly<span class="brand-dot">🌾</span></span>
+          <span class="brand-sub">Smart Silo System</span>
+        </div>
+        <button class="sidebar-close-btn" id="btn-close-sidebar" aria-label="Close Sidebar">&times;</button>
+      </div>
+
+      <!-- Facility & Vessel Card -->
+      <div class="facility-card">
+        <div class="facility-top">
+          <span class="facility-live-dot"></span>
+          <span class="facility-pill-text">Facility Online</span>
+        </div>
+        <div class="facility-title">Oregon Elevator Station #04</div>
+        <div class="facility-sub">Silo Vessel A-01 &bull; Golden Wheat</div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="sidebar-nav">
+        <span class="nav-header">MONITORING</span>
+        <a href="#section-overview" class="nav-link active" data-nav="overview">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="9" rx="1.5" />
+            <rect x="14" y="3" width="7" height="5" rx="1.5" />
+            <rect x="14" y="12" width="7" height="9" rx="1.5" />
+            <rect x="3" y="16" width="7" height="5" rx="1.5" />
+          </svg>
+          <span>Live Silo Chamber</span>
+        </a>
+
+        <a href="#section-trends" class="nav-link" data-nav="trends">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+          </svg>
+          <span>Historical Trends</span>
+        </a>
+
+        <a href="#section-audit" class="nav-link" data-nav="audit">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+          </svg>
+          <span>Audit Logbook</span>
+          <span class="nav-badge" id="nav-log-count">0</span>
+        </a>
+
+        <span class="nav-header">CONTROLS &amp; RIG</span>
+        <button id="nav-btn-sim" class="nav-link nav-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+          <span>Virtual Test Bench</span>
+        </button>
+
+        <button id="nav-btn-calibrate" class="nav-link nav-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="4" y1="21" x2="4" y2="14" />
+            <line x1="4" y1="10" x2="4" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12" y2="3" />
+            <line x1="20" y1="21" x2="20" y2="16" />
+            <line x1="20" y1="12" x2="20" y2="3" />
+            <line x1="1" y1="14" x2="7" y2="14" />
+            <line x1="9" y1="8" x2="15" y2="8" />
+            <line x1="17" y1="16" x2="23" y2="16" />
+          </svg>
+          <span>Silo Sizing &amp; Bounds</span>
+        </button>
+      </nav>
+
+      <!-- History Analytics Intelligence Widget -->
+      <div class="sidebar-intel-card">
+        <div class="intel-title-row">
+          <span class="intel-spark">🌾</span>
+          <span class="intel-heading">GRAIN ANALYTICS</span>
+        </div>
+        <div class="intel-row">
+          <span class="intel-label">Flow / Drain Rate:</span>
+          <span class="intel-value" id="side-depletion-rate">Stable (0.0 cm/h)</span>
+        </div>
+        <div class="intel-row">
+          <span class="intel-label">Peak Grain Depth:</span>
+          <span class="intel-value" id="side-peak-grain">-- cm</span>
+        </div>
+        <div class="intel-row">
+          <span class="intel-label">Compaction Stability:</span>
+          <span class="intel-value intel-value--green" id="side-stability-idx">99.8%</span>
+        </div>
+        <div class="intel-row">
+          <span class="intel-label">Total Readings Logged:</span>
+          <span class="intel-value" id="side-sample-count">0</span>
         </div>
       </div>
 
-      <!-- Telemetry Health Badges -->
-      <div class="header-telemetry">
-        <div class="telem-badge" id="telem-device" title="Target Microcontroller">
+      <!-- Connected Hardware Node Status -->
+      <div class="sidebar-hw-card">
+        <div class="hw-top">
           <span class="telem-dot telem-dot--pulse" id="device-dot"></span>
-          <div class="telem-col">
-            <span class="telem-label">DEVICE</span>
-            <span class="telem-val" id="device-id-text">ESP32-GRAIN-01</span>
-          </div>
+          <span class="hw-name" id="device-id-text">ESP32-GRAIN-01</span>
         </div>
+        <span class="hw-desc">Wi-Fi &bull; HC-SR04 &bull; GPIO 5,18,25,26</span>
+      </div>
 
-        <div class="telem-badge" id="telem-link" title="Backend API Health">
-          <span class="telem-dot" id="conn-dot"></span>
-          <div class="telem-col">
-            <span class="telem-label">BACKEND LINK</span>
-            <span class="telem-val" id="conn-label">Connecting…</span>
-          </div>
-        </div>
-
-        <div class="telem-badge telem-badge--time">
-          <div class="telem-col">
-            <span class="telem-label">SYSTEM TIME (IST)</span>
-            <span class="telem-val telem-val--mono" id="live-clock">--:--:--</span>
-          </div>
+      <!-- User Profile -->
+      <div class="sidebar-user-footer">
+        <div class="user-avatar-circle">🌾</div>
+        <div class="user-meta">
+          <span class="user-title">Grain Storage Lab</span>
+          <span class="user-station">Ann Maria &bull; Station 04</span>
         </div>
       </div>
 
-      <!-- Header Action Controls -->
-      <div class="header-actions">
-        <!-- Audio Alarm Toggle -->
-        <button id="btn-audio-toggle" class="scada-btn scada-btn--icon"
-          title="Toggle Audible Alarm on Low Grain Warning" aria-label="Toggle Alarm Sound">
-          <svg id="icon-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
-          </svg>
-          <svg id="icon-sound-off" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-            <line x1="23" y1="9" x2="17" y2="15" />
-            <line x1="17" y1="9" x2="23" y2="15" />
-          </svg>
-        </button>
+    </aside>
 
-        <!-- Hardware Simulator Drawer Toggle -->
-        <button id="btn-sim-drawer" class="scada-btn scada-btn--highlight" title="Open Interactive Test Bench & Slider">
-          <svg viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd"
-              d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
-              clip-rule="evenodd" />
-          </svg>
-          <span>Test Bench</span>
-        </button>
+    <!-- ─── 2. MAIN APPLICATION WORKSPACE ─── -->
+    <div class="app-main">
 
-        <!-- Calibration Modal Toggle -->
-        <button id="btn-open-config" class="scada-btn" title="Calibrate Silo Dimensions & Thresholds">
-          <svg viewBox="0 0 20 20" fill="currentColor">
-            <path
-              d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
-          </svg>
-          <span>Calibrate</span>
-        </button>
+      <!-- Top Header Navigation Bar -->
+      <header class="app-header">
+        <div class="header-left">
+          <button class="mobile-toggle-btn" id="btn-toggle-sidebar" aria-label="Toggle Sidebar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+          <div class="header-breadcrumb">
+            <span class="bc-facility">Oregon Station #04</span>
+            <span class="bc-sep">/</span>
+            <span class="bc-silo">Silo A-01</span>
+            <span class="bc-sep">/</span>
+            <span class="bc-active">Real-Time Grain Level</span>
+          </div>
+        </div>
 
-        <!-- Refresh Button -->
-        <button id="btn-refresh-all" class="scada-btn scada-btn--icon" title="Refresh Live Readings">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
-          </svg>
-        </button>
-      </div>
-    </header>
+        <div class="header-right">
+          <!-- Backend Connection Pill -->
+          <div class="header-pill" id="telem-link" title="FastAPI Backend Health">
+            <span class="telem-dot" id="conn-dot"></span>
+            <span class="pill-label" id="conn-label">Connecting…</span>
+          </div>
 
-    <!-- ─── INTERACTIVE TEST BENCH & SIMULATION CONTROL DRAWER ─── -->
-    <div id="sim-drawer" class="sim-drawer">
-      <div class="sim-drawer-inner">
-        <div class="sim-drawer-col sim-drawer-col--slider">
-          <div class="slider-header">
-            <span class="sim-label">VIRTUAL HC-SR04 SENSOR SLIDER</span>
-            <div class="slider-readout">
-              <span id="slider-dist-val">3.5</span>
-              <span class="slider-unit">cm</span>
-              <span class="slider-fill-preview" id="slider-fill-preview">(50.0% Fill)</span>
+          <!-- Digital Clock -->
+          <div class="header-pill">
+            <span class="pill-icon">🕒</span>
+            <span class="pill-label mono" id="live-clock">--:--:--</span>
+          </div>
+
+          <!-- Audio Buzzer Mute Toggle -->
+          <button id="btn-audio-toggle" class="header-icon-btn" title="Toggle Alarm Chime on Low Grain">
+            <svg id="icon-sound-on" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+            </svg>
+            <svg id="icon-sound-off" class="hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <line x1="23" y1="9" x2="17" y2="15" />
+              <line x1="17" y1="9" x2="23" y2="15" />
+            </svg>
+          </button>
+
+          <!-- Virtual Sensor Bench Drawer Toggle -->
+          <button id="btn-sim-drawer" class="header-btn header-btn--amber" title="Open Virtual Sensor Bench">
+            <span>🧪 Virtual Bench</span>
+          </button>
+
+          <!-- Calibration Modal -->
+          <button id="btn-open-config" class="header-btn" title="Calibrate Silo Dimensions">
+            <span>⚙️ Calibrate</span>
+          </button>
+
+          <!-- Refresh Button -->
+          <button id="btn-refresh-all" class="header-icon-btn" title="Refresh Live Readings">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- ─── SIMULATOR DRAWER ─── -->
+      <div id="sim-drawer" class="sim-drawer">
+        <div class="sim-drawer-content">
+          <div class="sim-col">
+            <div class="sim-label-row">
+              <span class="sim-label">VIRTUAL HC-SR04 SENSOR DISTANCE</span>
+              <div class="sim-readout">
+                <span id="slider-dist-val">3.5</span> cm
+                <span id="slider-fill-preview" class="sim-fill-preview">(50.0% Fill)</span>
+              </div>
+            </div>
+            <div class="slider-row">
+              <span class="s-bound">1.0 cm (Full)</span>
+              <input type="range" id="sim-distance-slider" min="1.0" max="8.0" step="0.1" value="3.5" />
+              <span class="s-bound">7.0 cm (Empty)</span>
             </div>
           </div>
-          <div class="slider-wrap">
-            <span class="slider-end-label">1.0 cm (Full)</span>
-            <input type="range" id="sim-distance-slider" min="1.0" max="8.0" step="0.1" value="3.5" />
-            <span class="slider-end-label">7.0 cm (Empty)</span>
-          </div>
-        </div>
 
-        <div class="sim-drawer-col sim-drawer-col--presets">
-          <span class="sim-label">QUICK SCENARIOS (7 cm Container)</span>
-          <div class="preset-buttons">
-            <button class="preset-btn" data-dist="1.0" title="Silo nearly full (6.0 cm depth)">
-              <span class="p-icon">🌾</span>
-              <span class="p-text">High (86%)</span>
-            </button>
-            <button class="preset-btn active" data-dist="3.5" title="Normal healthy fill level (3.5 cm depth)">
-              <span class="p-icon">⚖️</span>
-              <span class="p-text">Normal (50%)</span>
-            </button>
-            <button class="preset-btn preset-btn--warn" data-dist="5.5"
-              title="Critical low grain level: 1.5 cm depth (< 2 cm threshold)">
-              <span class="p-icon">⚠️</span>
-              <span class="p-text">Low Alert (&le;2cm)</span>
-            </button>
-            <button class="preset-btn preset-btn--err" data-dist="-1" title="HC-SR04 ultrasonic echo timeout error">
-              <span class="p-icon">❌</span>
-              <span class="p-text">Sensor Error</span>
-            </button>
+          <div class="sim-col">
+            <span class="sim-label">SCENARIOS</span>
+            <div class="preset-btn-group">
+              <button class="preset-btn" data-dist="1.0">🌾 Full (86%)</button>
+              <button class="preset-btn active" data-dist="3.5">⚖️ Normal (50%)</button>
+              <button class="preset-btn preset-btn--warn" data-dist="5.5">⚠️ Low Grain (&le;2cm)</button>
+              <button class="preset-btn preset-btn--err" data-dist="-1">❌ Echo Fault</button>
+            </div>
           </div>
-        </div>
 
-        <div class="sim-drawer-col sim-drawer-col--toggle">
-          <span class="sim-label">DYNAMIC CYCLE</span>
-          <div class="sim-toggle-row">
-            <button id="btn-auto-wave" class="sim-cycle-btn">
-              <span class="cycle-indicator"></span>
+          <div class="sim-col sim-col--auto">
+            <span class="sim-label">AUTO CYCLE</span>
+            <button id="btn-auto-wave" class="auto-wave-btn">
+              <span class="wave-dot"></span>
               <span id="auto-wave-text">Auto Fill/Empty Ticker</span>
             </button>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- ─── DASHBOARD WORKSPACE ─── -->
-    <main class="scada-content">
+      <!-- ─── SCROLLABLE WORKSPACE ─── -->
+      <main class="app-content">
 
-      <!-- ================= KPI METRICS STRIP ================= -->
-      <section class="kpi-grid">
+        <!-- ================= KPI METRIC CARDS STRIP ================= -->
+        <section class="kpi-grid" id="section-overview">
 
-        <!-- Card 1: Fill Percentage -->
-        <div class="kpi-card kpi-card--fill" id="kpi-fill-card">
-          <div class="kpi-glow"></div>
-          <div class="kpi-header">
-            <span class="kpi-title">GRAIN FILL VOLUME</span>
-            <div class="kpi-icon-wrap kpi-icon-wrap--emerald">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-              </svg>
+          <!-- Card 1: Grain Capacity -->
+          <div class="grain-card kpi-card" id="kpi-fill-card">
+            <div class="kpi-top">
+              <span class="kpi-category">STORAGE CAPACITY</span>
+              <div class="kpi-icon-badge kpi-icon-badge--amber">🌾</div>
             </div>
-          </div>
-          <div class="kpi-main">
-            <div class="kpi-val-group">
-              <span class="kpi-num" id="val-fill">--</span>
-              <span class="kpi-symbol">%</span>
+            <div class="kpi-value-row">
+              <span class="kpi-hero-num" id="val-fill">--</span>
+              <span class="kpi-unit-tag">%</span>
             </div>
-            <span class="kpi-badge kpi-badge--emerald" id="fill-trend-badge">Active Level</span>
-          </div>
-          <div class="kpi-progress">
-            <div class="kpi-progress-bar" id="kpi-progress-fill"></div>
-          </div>
-          <div class="kpi-footer-meta">
-            <span>Grain Volume Est: <strong id="kpi-est-volume">-- L</strong></span>
-            <span id="kpi-est-weight">-- kg</span>
-          </div>
-        </div>
-
-        <!-- Card 2: Headspace Distance -->
-        <div class="kpi-card kpi-card--dist" id="kpi-dist-card">
-          <div class="kpi-glow"></div>
-          <div class="kpi-header">
-            <span class="kpi-title">HEADSPACE DISTANCE</span>
-            <div class="kpi-icon-wrap kpi-icon-wrap--sky">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="12" y1="2" x2="12" y2="22" />
-                <polyline points="8 6 12 2 16 6" />
-                <polyline points="8 18 12 22 16 18" />
-              </svg>
+            <div class="kpi-progress-track">
+              <div class="kpi-progress-fill" id="kpi-progress-fill"></div>
             </div>
-          </div>
-          <div class="kpi-main">
-            <div class="kpi-val-group">
-              <span class="kpi-num" id="val-distance">--</span>
-              <span class="kpi-symbol">cm</span>
-            </div>
-            <span class="kpi-badge kpi-badge--sky" id="dist-tag">Sensor to Grain Top</span>
-          </div>
-          <div class="kpi-progress">
-            <div class="kpi-progress-bar kpi-progress-bar--sky" id="kpi-progress-dist"></div>
-          </div>
-          <div class="kpi-footer-meta">
-            <span>Container Height: <strong id="kpi-cont-height">100.0 cm</strong></span>
-            <span>Grain Depth: <strong id="kpi-grain-depth">-- cm</strong></span>
-          </div>
-        </div>
-
-        <!-- Card 3: Grain Status -->
-        <div class="kpi-card kpi-card--status" id="kpi-status-card">
-          <div class="kpi-glow" id="status-card-glow"></div>
-          <div class="kpi-header">
-            <span class="kpi-title">STORAGE OPERATING STATUS</span>
-            <div class="kpi-icon-wrap kpi-icon-wrap--amber" id="status-icon-wrap">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-                <line x1="12" y1="9" x2="12" y2="13" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-            </div>
-          </div>
-          <div class="kpi-main">
-            <div class="status-pill-hero status-pill-hero--normal" id="hero-status-pill">
-              <span class="hero-dot"></span>
-              <span id="val-status">INITIALIZING</span>
-            </div>
-          </div>
-          <div class="status-explanation" id="status-explanation">
-            Monitoring container level threshold...
-          </div>
-          <div class="kpi-footer-meta">
-            <span>Low Threshold: <strong id="kpi-low-thresh">25.0%</strong></span>
-            <span id="alarm-state-txt">Audible Alarm: Ready</span>
-          </div>
-        </div>
-
-        <!-- Card 4: Microcontroller & Telemetry -->
-        <div class="kpi-card kpi-card--telemetry" id="kpi-telem-card">
-          <div class="kpi-glow"></div>
-          <div class="kpi-header">
-            <span class="kpi-title">SCADA / ESP32 TELEMETRY</span>
-            <div class="kpi-icon-wrap kpi-icon-wrap--purple">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="4" y="4" width="16" height="16" rx="2" />
-                <rect x="9" y="9" width="6" height="6" />
-                <line x1="9" y1="1" x2="9" y2="4" />
-                <line x1="15" y1="1" x2="15" y2="4" />
-                <line x1="9" y1="20" x2="9" y2="23" />
-                <line x1="15" y1="20" x2="15" y2="23" />
-                <line x1="20" y1="9" x2="23" y2="9" />
-                <line x1="20" y1="14" x2="23" y2="14" />
-                <line x1="1" y1="9" x2="4" y2="9" />
-                <line x1="1" y1="14" x2="4" y2="14" />
-              </svg>
-            </div>
-          </div>
-          <div class="kpi-main">
-            <div class="kpi-val-group">
-              <span class="kpi-num kpi-num--sm" id="val-uptime">0h 00m</span>
-            </div>
-            <span class="kpi-badge kpi-badge--purple">Server Uptime</span>
-          </div>
-          <div class="telem-stats-row">
-            <div class="telem-stat">
-              <span class="ts-lbl">SAMPLE RATE</span>
-              <span class="ts-val">0.2 Hz (5s)</span>
-            </div>
-            <div class="telem-stat">
-              <span class="ts-lbl">TOTAL LOGS</span>
-              <span class="ts-val" id="total-logs-count">0</span>
-            </div>
-          </div>
-          <div class="kpi-footer-meta">
-            <span>Last Sync: <strong id="val-last-sync">--:--:--</strong></span>
-            <span>Trigger: GPIO 5</span>
-          </div>
-        </div>
-
-      </section>
-
-      <!-- ================= PRIMARY MONITORING STAGE ================= -->
-      <section class="stage-grid">
-
-        <!-- ─── PANEL A: 3D CYLINDRICAL GRAIN SILO ─── -->
-        <div class="scada-panel silo-panel-container">
-          <div class="panel-header">
-            <div class="panel-title-area">
-              <div class="panel-badge">VESSEL #01</div>
-              <h2 class="panel-title">Smart Grain Silo Chamber</h2>
-              <span class="panel-desc">Real-time HC-SR04 ultrasonic volumetric tomography</span>
-            </div>
-            <div class="grain-selector-box">
-              <label for="grain-type-select" class="selector-lbl">Grain Type:</label>
-              <select id="grain-type-select" class="scada-select">
-                <option value="wheat" selected>🌾 Wheat (0.78 kg/L)</option>
-                <option value="corn">🌽 Yellow Corn (0.72 kg/L)</option>
-                <option value="rice">🍚 White Rice (0.85 kg/L)</option>
-                <option value="soy">🫘 Soybeans (0.75 kg/L)</option>
-              </select>
+            <div class="kpi-meta-split">
+              <span>Grain Volume: <strong id="kpi-est-volume">-- L</strong></span>
+              <span>Estimated Mass: <strong id="kpi-est-weight">-- kg</strong></span>
             </div>
           </div>
 
-          <div class="silo-workspace">
+          <!-- Card 2: Headspace Distance -->
+          <div class="grain-card kpi-card" id="kpi-dist-card">
+            <div class="kpi-top">
+              <span class="kpi-category">HEADSPACE DISTANCE</span>
+              <div class="kpi-icon-badge kpi-icon-badge--blue">📏</div>
+            </div>
+            <div class="kpi-value-row">
+              <span class="kpi-hero-num" id="val-distance">--</span>
+              <span class="kpi-unit-tag">cm</span>
+            </div>
+            <div class="kpi-progress-track">
+              <div class="kpi-progress-fill kpi-progress-fill--blue" id="kpi-progress-dist"></div>
+            </div>
+            <div class="kpi-meta-split">
+              <span>Grain Depth: <strong id="kpi-grain-depth">-- cm</strong></span>
+              <span>Silo Height: <strong id="kpi-cont-height">9.0 cm</strong></span>
+            </div>
+          </div>
 
-            <!-- Silo 3D Structure & Soundwave Visualization -->
-            <div class="silo-viewport">
-
-              <!-- Left Volumetric Ruler Scale -->
-              <div class="silo-ruler">
-                <div class="ruler-mark" style="top: 0%"><span class="ruler-num">100%</span><span class="ruler-sub"
-                    id="ruler-h-top">100cm</span></div>
-                <div class="ruler-mark" style="top: 25%"><span class="ruler-num">75%</span></div>
-                <div class="ruler-mark" style="top: 50%"><span class="ruler-num">50%</span></div>
-                <div class="ruler-mark ruler-mark--warn" style="top: 75%"><span class="ruler-num">25%</span><span
-                    class="ruler-sub">LOW ALARM</span></div>
-                <div class="ruler-mark" style="top: 100%"><span class="ruler-num">0%</span><span
-                    class="ruler-sub">0cm</span></div>
+          <!-- Card 3: Storage Operating Status -->
+          <div class="grain-card kpi-card" id="kpi-status-card">
+            <div class="kpi-glow" id="status-card-glow"></div>
+            <div class="kpi-top">
+              <span class="kpi-category">OPERATING STATUS</span>
+              <div class="kpi-icon-badge" id="status-icon-wrap">🛡️</div>
+            </div>
+            <div class="kpi-status-wrap">
+              <div class="status-pill status-pill--normal" id="hero-status-pill">
+                <span class="status-dot"></span>
+                <span id="val-status">INITIALIZING</span>
               </div>
+            </div>
+            <div class="status-desc" id="status-explanation">
+              Monitoring grain level against calibrated threshold...
+            </div>
+            <div class="kpi-meta-split">
+              <span>Low Alert Threshold: <strong id="kpi-low-thresh">22.2%</strong></span>
+              <span id="alarm-state-txt">Audio Chime: Ready</span>
+            </div>
+          </div>
 
-              <!-- Cylindrical Silo Vessel Body -->
-              <div class="silo-structure" id="silo-structure">
+          <!-- Card 4: Hardware Telemetry -->
+          <div class="grain-card kpi-card" id="kpi-telem-card">
+            <div class="kpi-top">
+              <span class="kpi-category">ESP32 TELEMETRY</span>
+              <div class="kpi-icon-badge kpi-icon-badge--green">⚡</div>
+            </div>
+            <div class="kpi-value-row">
+              <span class="kpi-hero-num kpi-hero-num--sm" id="val-uptime">0h 00m</span>
+              <span class="kpi-unit-tag">server uptime</span>
+            </div>
+            <div class="telem-sub-pills">
+              <div class="telem-mini-pill">
+                <span class="tmp-lbl">SAMPLE RATE</span>
+                <span class="tmp-val">0.2 Hz (5s)</span>
+              </div>
+              <div class="telem-mini-pill">
+                <span class="tmp-lbl">LOG COUNT</span>
+                <span class="tmp-val" id="total-logs-count">0</span>
+              </div>
+            </div>
+            <div class="kpi-meta-split">
+              <span>Last Sync: <strong id="val-last-sync">--:--:--</strong></span>
+              <span>Trigger: GPIO 5</span>
+            </div>
+          </div>
 
-                <!-- Silo Roof / Dome with Sensor Bracket -->
-                <div class="silo-roof">
-                  <div class="dome-cap"></div>
-                  <!-- HC-SR04 Ultrasonic Sensor Module Mount -->
-                  <div class="sensor-housing" title="HC-SR04 Ultrasonic Distance Sensor">
-                    <div class="sensor-pcb">
-                      <div class="sensor-transducer sensor-transducer--tx" title="Transmitter: 40kHz Ultrasonic Pulse">
-                        <span class="transducer-mesh"></span>
-                        <span class="transducer-label">T</span>
+        </section>
+
+        <!-- ================= MAIN STAGE: 3D ANIMATED SILO & PHYSICAL LED BEZELS ================= -->
+        <section class="stage-container">
+
+          <!-- Left Panel: 3D Animated Silo Vessel -->
+          <!-- Left Panel: Glass Storage Jar with Falling Grain Animation -->
+          <div class="grain-card silo-panel">
+            <div class="panel-header-row">
+              <div>
+                <span class="panel-kicker">ACOUSTIC TOMOGRAPHY &bull; SILO JAR</span>
+                <h2 class="panel-title">Storage Jar &bull; Vessel A-01</h2>
+                <span class="panel-subtitle">Real-time HC-SR04 ultrasonic soundwave tracking with active grain stream</span>
+              </div>
+              <div class="header-action-group">
+                <button id="btn-toggle-pour" class="header-btn header-btn--amber" title="Toggle grain pouring into the jar">
+                  <span id="pour-btn-icon">🌾</span> <span id="pour-btn-text">Pour Grain Stream</span>
+                </button>
+                <div class="grain-selector-box">
+                  <select id="grain-type-select" class="grain-select">
+                    <option value="wheat" selected>🌾 Golden Wheat</option>
+                    <option value="corn">🌽 Yellow Corn</option>
+                    <option value="rice">🍚 White Rice</option>
+                    <option value="soy">🫘 Soybeans</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="silo-workspace-split">
+
+              <!-- Glass Jar Viewport Stage -->
+              <div class="silo-viewport">
+
+                <!-- Overhead Grain Dispenser Chute -->
+                <div class="grain-dispenser-chute">
+                  <div class="chute-funnel"></div>
+                  <div class="chute-spout">
+                    <span class="grain-stream-nozzle" id="grain-stream-nozzle"></span>
+                  </div>
+                </div>
+
+                <!-- Embossed Jar Ruler / Graduation Marks -->
+                <div class="silo-ruler">
+                  <div class="ruler-step" style="top: 0%"><span class="ruler-num">100%</span><span class="ruler-sub" id="ruler-h-top">9.0cm</span></div>
+                  <div class="ruler-step" style="top: 25%"><span class="ruler-num">75%</span></div>
+                  <div class="ruler-step" style="top: 50%"><span class="ruler-num">50%</span></div>
+                  <div class="ruler-step ruler-step--alert" style="top: 77.8%"><span class="ruler-num">22%</span><span class="ruler-sub">LOW ALERT</span></div>
+                  <div class="ruler-step" style="top: 100%"><span class="ruler-num">0%</span><span class="ruler-sub">0cm</span></div>
+                </div>
+
+                <!-- Glass Storage Jar Body -->
+                <div class="silo-column glass-jar" id="silo-structure">
+
+                  <!-- Jar Mouth & Sensor Cap -->
+                  <div class="jar-rim"></div>
+                  <div class="silo-dome jar-lid">
+                    <div class="sensor-mount" title="HC-SR04 Ultrasonic Distance Sensor">
+                      <div class="sensor-board">
+                        <div class="sensor-eye eye-tx" title="Transmitter: 40kHz Pulse">T</div>
+                        <div class="sensor-chip">40k</div>
+                        <div class="sensor-eye eye-rx" title="Receiver: Echo Detector">R</div>
                       </div>
-                      <div class="sensor-crystal">
-                        <span class="crystal-txt">40kHz</span>
-                      </div>
-                      <div class="sensor-transducer sensor-transducer--rx" title="Receiver: Echo Detector">
-                        <span class="transducer-mesh"></span>
-                        <span class="transducer-label">R</span>
+                      <div class="sensor-legs">
+                        <span class="s-pin"></span><span class="s-pin"></span><span class="s-pin"></span><span class="s-pin"></span>
                       </div>
                     </div>
-                    <div class="sensor-wiring-pins">
-                      <span class="wire-pin" title="VCC 5V"></span>
-                      <span class="wire-pin" title="TRIG GPIO 5"></span>
-                      <span class="wire-pin" title="ECHO GPIO 18"></span>
-                      <span class="wire-pin" title="GND"></span>
+                  </div>
+
+                  <!-- Jar Shoulder Curves -->
+                  <div class="jar-shoulder-left"></div>
+                  <div class="jar-shoulder-right"></div>
+
+                  <!-- Active Grain Falling & Splash Physics Canvas -->
+                  <canvas id="grain-falling-canvas" class="grain-falling-canvas"></canvas>
+
+                  <!-- Animated Sonar Waves -->
+                  <div class="sonar-chamber">
+                    <div class="sonar-ring sonar-ring-1"></div>
+                    <div class="sonar-ring sonar-ring-2"></div>
+                    <div class="sonar-ring sonar-ring-3"></div>
+
+                    <!-- Headspace Distance Bracket -->
+                    <div class="headspace-bracket" id="headspace-bracket">
+                      <div class="bracket-tag" id="bracket-tag">
+                        <span id="bracket-cm">-- cm</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <!-- Acoustic Sonar Soundwaves & Laser Guide -->
-                <div class="sonar-chamber">
-                  <div class="sonar-wave sonar-wave-1"></div>
-                  <div class="sonar-wave sonar-wave-2"></div>
-                  <div class="sonar-wave sonar-wave-3"></div>
+                  <!-- Glass Jar Reflections & Caustics -->
+                  <div class="glass-reflection glass-reflection--left"></div>
+                  <div class="glass-reflection glass-reflection--right"></div>
+                  <div class="jar-embossed-brand">GRAINLY &bull; 900ml</div>
 
-                  <!-- Vertical Distance Beam & Bracket -->
-                  <div class="headspace-bracket" id="headspace-bracket">
-                    <div class="bracket-top-tick"></div>
-                    <div class="bracket-line"></div>
-                    <div class="bracket-bottom-tick"></div>
-                    <div class="bracket-tag" id="bracket-tag">
-                      <span id="bracket-cm">-- cm</span>
+                  <!-- Dynamic Grain Reservoir inside Jar -->
+                  <div class="grain-reservoir" id="grain-reservoir">
+                    <!-- Heaping Conical Wave -->
+                    <div class="grain-wave-wrapper">
+                      <svg viewBox="0 0 500 60" preserveAspectRatio="none" class="wave-svg-animated">
+                        <path d="M0,35 Q250,5 500,35 L500,60 L0,60 Z" class="wave-layer-back"></path>
+                        <path d="M0,38 Q250,10 500,38 L500,60 L0,60 Z" class="wave-layer-front"></path>
+                      </svg>
+                      <!-- Splash Ring at Center -->
+                      <div class="grain-impact-splash" id="grain-impact-splash"></div>
+                    </div>
+
+                    <!-- Golden Grain Bed Body with Specks -->
+                    <div class="grain-bed-body" id="grain-bed-body">
+                      <canvas id="grain-particles-canvas" class="grain-particles-canvas"></canvas>
+                    </div>
+
+                    <!-- Floating Capacity Pill -->
+                    <div class="silo-volume-badge">
+                      <span class="svb-num" id="silo-hud-num">--%</span>
+                      <span class="svb-lbl">CAPACITY</span>
                     </div>
                   </div>
+
+                  <!-- Thick Solid Glass Jar Base -->
+                  <div class="jar-solid-base"></div>
+
+                </div><!-- /glass-jar -->
+              </div><!-- /silo-viewport -->
+
+              <!-- Right Diagnostics Breakdown -->
+              <div class="silo-diagnostics-col">
+                <h3 class="diag-title">VESSEL METRICS &amp; GEOMETRY</h3>
+
+                <div class="diag-card">
+                  <span class="dc-lbl">Ultrasonic Headspace</span>
+                  <span class="dc-val dc-val--blue" id="diag-headspace">-- cm</span>
+                  <span class="dc-desc">Distance from sensor lens to top of grain pile</span>
                 </div>
 
-                <!-- Cylindrical Glass Overlay Reflection -->
-                <div class="glass-cylinder-specular"></div>
-                <div class="glass-cylinder-grid"></div>
-
-                <!-- Dynamic Grain Mass -->
-                <div class="grain-reservoir" id="grain-reservoir">
-                  <!-- Organic Animated Wave Surface -->
-                  <div class="grain-surface-wave">
-                    <svg viewBox="0 0 500 60" preserveAspectRatio="none" class="wave-svg">
-                      <path d="M0,20 C150,45 350,-5 500,20 L500,60 L0,60 Z" class="wave-path-back"></path>
-                      <path d="M0,25 C120,5 380,45 500,25 L500,60 L0,60 Z" class="wave-path-front"></path>
-                    </svg>
-                    <div class="grain-surface-sparkles"></div>
-                  </div>
-
-                  <!-- Grain Body with Granular Texture -->
-                  <div class="grain-bed-body" id="grain-bed-body">
-                    <canvas id="grain-particles-canvas" class="grain-particles-canvas"></canvas>
-                  </div>
-
-                  <!-- Floating Percentage HUD Badge -->
-                  <div class="silo-floating-hud" id="silo-floating-hud">
-                    <span class="silo-hud-num" id="silo-hud-num">--%</span>
-                    <span class="silo-hud-label">CAPACITY</span>
-                  </div>
+                <div class="diag-card">
+                  <span class="dc-lbl">Grain Column Depth</span>
+                  <span class="dc-val dc-val--amber" id="diag-depth">-- cm</span>
+                  <span class="dc-desc">Container Height &minus; Headspace Distance</span>
                 </div>
 
-                <!-- Silo Bottom Funnel / Conical Hopper -->
-                <div class="silo-conical-hopper">
-                  <div class="hopper-cone"></div>
-                  <div class="hopper-valve"></div>
+                <div class="diag-card">
+                  <span class="dc-lbl">Calculated Fill Level</span>
+                  <span class="dc-val dc-val--green" id="diag-fill-pct">--%</span>
+                  <span class="dc-desc">Safety boundary: &gt; 22.2% (&gt; 2.0 cm)</span>
                 </div>
 
-                <!-- Structural Steel Support Legs -->
-                <div class="silo-legs">
-                  <div class="silo-leg leg-left"></div>
-                  <div class="silo-leg leg-center"></div>
-                  <div class="silo-leg leg-right"></div>
+                <div class="diag-card">
+                  <span class="dc-lbl">Estimated Total Mass</span>
+                  <span class="dc-val" id="diag-mass">-- kg</span>
+                  <span class="dc-desc" id="diag-grain-name">Based on Wheat bulk density</span>
                 </div>
 
-              </div><!-- /silo-structure -->
-
-            </div><!-- /silo-viewport -->
-
-            <!-- Right Side Silo Live Metrics Card -->
-            <div class="silo-diagnostics">
-              <h3 class="diag-header">SILO GEOMETRY &amp; READINGS</h3>
-
-              <div class="diag-metric-card">
-                <span class="diag-lbl">Current Headspace</span>
-                <span class="diag-val diag-val--sky" id="diag-headspace">-- cm</span>
-                <span class="diag-sub">Distance from sensor to grain top</span>
+                <div class="diag-status-pill" id="diag-status-strip">
+                  <span class="dsp-dot"></span>
+                  <span id="diag-status-text">Status: Nominal</span>
+                </div>
               </div>
 
-              <div class="diag-metric-card">
-                <span class="diag-lbl">Grain Column Depth</span>
-                <span class="diag-val diag-val--emerald" id="diag-depth">-- cm</span>
-                <span class="diag-sub">Calculated grain thickness</span>
-              </div>
+            </div><!-- /silo-workspace-split -->
+          </div><!-- /silo-panel -->
 
-              <div class="diag-metric-card">
-                <span class="diag-lbl">Calculated Fill Level</span>
-                <span class="diag-val diag-val--amber" id="diag-fill-pct">--%</span>
-                <span class="diag-sub">Safe range: &gt; 25.0%</span>
-              </div>
-
-              <div class="diag-metric-card">
-                <span class="diag-lbl">Mass Estimation</span>
-                <span class="diag-val" id="diag-mass">-- kg</span>
-                <span class="diag-sub" id="diag-grain-name">Based on Wheat density</span>
-              </div>
-
-              <div class="diag-status-strip" id="diag-status-strip">
-                <span class="status-indicator-dot"></span>
-                <span id="diag-status-text">Status: Nominal</span>
+          <!-- Right Panel: Physical LEDs & Hardware Actuators -->
+          <div class="grain-card led-panel">
+            <div class="panel-header-row">
+              <div>
+                <span class="panel-kicker">PHYSICAL ACTUATORS</span>
+                <h2 class="panel-title">ESP32 Circuit Indicators</h2>
+                <span class="panel-subtitle">GPIO 25 (Red) &amp; GPIO 26 (Green) hardware state</span>
               </div>
             </div>
 
-          </div><!-- /silo-workspace -->
-        </div><!-- /silo-panel-container -->
+            <!-- LED Showcase Lamps -->
+            <div class="led-showcase">
 
-        <!-- ─── PANEL B: REALISTIC HARDWARE LED INDICATOR & CIRCUIT PANEL ─── -->
-        <div class="scada-panel led-panel-container">
-          <div class="panel-header">
-            <div class="panel-title-area">
-              <div class="panel-badge panel-badge--cyan">CIRCUIT TELEMETRY</div>
-              <h2 class="panel-title">Physical LED Indicators</h2>
-              <span class="panel-sub">ESP32 GPIO 25 (Red) &amp; GPIO 26 (Green) Output State</span>
+              <!-- Red Alert LED Lamp -->
+              <div class="lamp-box">
+                <div class="lamp-bezel">
+                  <div class="lamp-lens lamp-lens--red" id="lamp-red-lens">
+                    <div class="lens-specular"></div>
+                  </div>
+                  <div class="lamp-glow-bloom lamp-glow-bloom--red" id="lamp-red-bloom"></div>
+                </div>
+                <div class="lamp-info">
+                  <span class="lamp-title">CRITICAL ALERT</span>
+                  <span class="lamp-pin">GPIO 25 &bull; Red LED</span>
+                  <span class="lamp-state-chip" id="chip-red-state">OFF</span>
+                  <span class="lamp-rule">Triggers when grain &le; 2.0 cm or sensor timeout</span>
+                </div>
+              </div>
+
+              <!-- Mutual Logic Divider -->
+              <div class="led-mutual-divider">
+                <div class="lmd-line"></div>
+                <div class="lmd-pill">LOGIC INTERLOCK</div>
+                <div class="lmd-line"></div>
+              </div>
+
+              <!-- Green Normal LED Lamp -->
+              <div class="lamp-box">
+                <div class="lamp-bezel">
+                  <div class="lamp-lens lamp-lens--green" id="lamp-green-lens">
+                    <div class="lens-specular"></div>
+                  </div>
+                  <div class="lamp-glow-bloom lamp-glow-bloom--green" id="lamp-green-bloom"></div>
+                </div>
+                <div class="lamp-info">
+                  <span class="lamp-title">NORMAL BUFFER</span>
+                  <span class="lamp-pin">GPIO 26 &bull; Green LED</span>
+                  <span class="lamp-state-chip" id="chip-green-state">OFF</span>
+                  <span class="lamp-rule">Triggers when grain level is safely above threshold</span>
+                </div>
+              </div>
+
+            </div><!-- /led-showcase -->
+
+            <!-- Hardware Pinout Schematic Card -->
+            <div class="hardware-schematic-card">
+              <div class="hsc-title">
+                <span>⚡ ESP32 DevKit Wiring Map</span>
+              </div>
+              <div class="hsc-grid">
+                <div class="hsc-pin"><span class="hp-num">GPIO 5</span><span class="hp-desc">TRIG (Ultrasonic Pulse Out)</span></div>
+                <div class="hsc-pin"><span class="hp-num">GPIO 18</span><span class="hp-desc">ECHO (1k/2k Divider In)</span></div>
+                <div class="hsc-pin"><span class="hp-num">GPIO 25</span><span class="hp-desc">RED LED (220&Omega; Anode)</span></div>
+                <div class="hsc-pin"><span class="hp-num">GPIO 26</span><span class="hp-desc">GREEN LED (220&Omega; Anode)</span></div>
+              </div>
+            </div>
+
+          </div><!-- /led-panel -->
+
+        </section>
+
+        <!-- ================= HISTORICAL TIME-SERIES SPLINE CHART ================= -->
+        <section class="grain-card chart-panel" id="section-trends">
+          <div class="panel-header-row">
+            <div>
+              <span class="panel-kicker">CONTINUOUS TELEMETRY</span>
+              <h2 class="panel-title">Ultrasonic Headspace &amp; Fill Trendline</h2>
+              <span class="panel-subtitle">Real-time anti-aliased spline curve with warning barrier</span>
+            </div>
+
+            <div class="chart-controls">
+              <div class="chart-legend">
+                <span class="c-leg-item"><span class="c-dot c-dot--amber"></span> Distance (cm)</span>
+                <span class="c-leg-item"><span class="c-dot c-dot--red"></span> Low Alert Barrier (&ge;7cm)</span>
+              </div>
+              <div class="chart-range-pills">
+                <button class="range-btn active" data-limit="20">Last 20</button>
+                <button class="range-btn" data-limit="50">Last 50</button>
+              </div>
             </div>
           </div>
 
-          <div class="led-showcase">
-
-            <!-- Industrial Bezel Lamp: RED LED (Low / Error) -->
-            <div class="lamp-module" id="lamp-module-red">
-              <div class="lamp-bezel">
-                <div class="lamp-lens lamp-lens--red" id="lamp-red-lens">
-                  <div class="lens-filament"></div>
-                  <div class="lens-specular"></div>
-                </div>
-                <div class="lamp-glow-bloom lamp-glow-bloom--red" id="lamp-red-bloom"></div>
+          <div class="chart-canvas-wrap" id="chart-wrapper">
+            <canvas id="scada-trend-chart"></canvas>
+            <div id="chart-tooltip" class="chart-tooltip hidden">
+              <div class="tt-time" id="tt-time">--:--:--</div>
+              <div class="tt-row">
+                <span>Distance:</span>
+                <strong id="tt-dist">-- cm</strong>
               </div>
-              <div class="lamp-meta">
-                <span class="lamp-name">CRITICAL ALERT</span>
-                <span class="lamp-gpio">GPIO 25 (Red)</span>
-                <div class="lamp-status-chip" id="chip-red-state">OFF</div>
-                <span class="lamp-desc">Triggers on &lt;25% or Sensor Error</span>
+              <div class="tt-row">
+                <span>Fill Level:</span>
+                <strong id="tt-fill">--%</strong>
+              </div>
+              <div class="tt-row">
+                <span>Status:</span>
+                <span id="tt-status" class="tt-status-pill">NORMAL</span>
               </div>
             </div>
+          </div>
 
-            <!-- Interlock Logic Divider -->
-            <div class="led-interlock">
-              <div class="interlock-line"></div>
-              <div class="interlock-box">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4" />
+          <div class="chart-summary-bar">
+            <div class="cs-item">
+              <span class="cs-lbl">CURRENT DISTANCE</span>
+              <span class="cs-val" id="cstat-curr">-- cm</span>
+            </div>
+            <div class="cs-item">
+              <span class="cs-lbl">SESSION PEAK FILL (MIN DIST)</span>
+              <span class="cs-val" id="cstat-min">-- cm</span>
+            </div>
+            <div class="cs-item">
+              <span class="cs-lbl">SESSION LOW FILL (MAX DIST)</span>
+              <span class="cs-val" id="cstat-max">-- cm</span>
+            </div>
+            <div class="cs-item">
+              <span class="cs-lbl">COMPACTION STABILITY</span>
+              <span class="cs-val cs-val--green" id="cstat-stability">99.8%</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= HISTORICAL AUDIT LOGS ================= -->
+        <section class="grain-card table-panel" id="section-audit">
+          <div class="panel-header-row">
+            <div>
+              <span class="panel-kicker">DATABASE AUDIT TRAIL</span>
+              <h2 class="panel-title">Historical Telemetry Logbook</h2>
+              <span class="panel-subtitle" id="table-subtitle">Displaying latest sensor cycles from SQLite backend</span>
+            </div>
+
+            <div class="table-actions">
+              <!-- Live Search Input -->
+              <div class="table-search-box">
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                    clip-rule="evenodd" />
                 </svg>
-                <span>MUTUAL LOGIC</span>
+                <input type="text" id="log-search-input" placeholder="Search timestamp, status, distance..." />
               </div>
-              <div class="interlock-line"></div>
-            </div>
 
-            <!-- Industrial Bezel Lamp: GREEN LED (Normal) -->
-            <div class="lamp-module" id="lamp-module-green">
-              <div class="lamp-bezel">
-                <div class="lamp-lens lamp-lens--green" id="lamp-green-lens">
-                  <div class="lens-filament"></div>
-                  <div class="lens-specular"></div>
-                </div>
-                <div class="lamp-glow-bloom lamp-glow-bloom--green" id="lamp-green-bloom"></div>
+              <!-- Filter by Status -->
+              <div class="filter-pill-group">
+                <button class="filter-chip active" data-filter="ALL">ALL</button>
+                <button class="filter-chip" data-filter="NORMAL">NORMAL</button>
+                <button class="filter-chip" data-filter="LOW">LOW</button>
+                <button class="filter-chip" data-filter="ERROR">ERROR</button>
               </div>
-              <div class="lamp-meta">
-                <span class="lamp-name">NORMAL LEVEL</span>
-                <span class="lamp-gpio">GPIO 26 (Green)</span>
-                <div class="lamp-status-chip" id="chip-green-state">OFF</div>
-                <span class="lamp-desc">Triggers on &ge;25% Normal Fill</span>
-              </div>
-            </div>
 
-          </div><!-- /led-showcase -->
+              <!-- Export to CSV -->
+              <button id="btn-export-csv" class="header-btn" title="Download historical readings as CSV file">
+                <span>📥 Export CSV</span>
+              </button>
 
-          <!-- Hardware Breadboard / Pinout Schematic Card -->
-          <div class="schematic-summary">
-            <div class="schematic-title">
-              <svg viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                  d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
-                  clip-rule="evenodd" />
-              </svg>
-              <span>ESP32 Hardware Interconnects</span>
-            </div>
-            <div class="schematic-grid">
-              <div class="pin-pill"><span class="pin-no">GPIO 5</span><span class="pin-role">TRIG (Ultrasonic
-                  Out)</span></div>
-              <div class="pin-pill"><span class="pin-no">GPIO 18</span><span class="pin-role">ECHO (Voltage
-                  Divider)</span></div>
-              <div class="pin-pill"><span class="pin-no">GPIO 25</span><span class="pin-role">RED LED (330&Omega;
-                  Resistor)</span></div>
-              <div class="pin-pill"><span class="pin-no">GPIO 26</span><span class="pin-role">GREEN LED (330&Omega;
-                  Resistor)</span></div>
+              <!-- Refresh Table -->
+              <button id="btn-refresh-table" class="header-icon-btn" title="Refresh Log Table">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+                </svg>
+              </button>
             </div>
           </div>
 
-        </div><!-- /led-panel-container -->
-
-      </section>
-
-      <!-- ================= TIME-SERIES ANALYTICS & HISTORICAL CHART ================= -->
-      <section class="scada-panel chart-panel-container">
-        <div class="panel-header">
-          <div class="panel-title-area">
-            <div class="panel-badge panel-badge--purple">ANALYTICS</div>
-            <h2 class="panel-title">Real-Time Distance &amp; Fill Trendline</h2>
-            <span class="panel-sub">Continuous ultrasonic tracking · Spline curve with threshold barrier</span>
+          <!-- Table Scroller -->
+          <div class="table-scroller">
+            <table class="grain-table" id="scada-table">
+              <thead>
+                <tr>
+                  <th style="width: 70px;">#</th>
+                  <th>TIMESTAMP</th>
+                  <th>DEVICE ID</th>
+                  <th>DISTANCE</th>
+                  <th>FILL %</th>
+                  <th>GRAIN STATUS</th>
+                  <th style="text-align: center;">RED LED (25)</th>
+                  <th style="text-align: center;">GREEN LED (26)</th>
+                </tr>
+              </thead>
+              <tbody id="readings-tbody">
+                <tr>
+                  <td colspan="8" class="table-empty">
+                    <div class="empty-state-box">
+                      <div class="empty-spinner"></div>
+                      <span>Connecting to FastAPI SQLite database...</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
+        </section>
 
-          <div class="chart-controls">
-            <div class="chart-legend-pills">
-              <span class="c-legend-item"><span class="c-dot c-dot--line"></span> Distance (cm)</span>
-              <span class="c-legend-item"><span class="c-dot c-dot--thresh"></span> Low Threshold</span>
-            </div>
-            <div class="chart-range-btns">
-              <button class="range-btn active" data-limit="20">Last 20</button>
-              <button class="range-btn" data-limit="50">Last 50</button>
-            </div>
-          </div>
+      </main>
+
+      <!-- App Footer -->
+      <footer class="app-footer">
+        <div class="footer-left">
+          <span>Grainly &bull; Smart Grain Storage Platform</span>
+          <span class="f-dot">&bull;</span>
+          <span>ESP32 &bull; HC-SR04 &bull; FastAPI ASGI Backend &bull; SQLite Persistence</span>
         </div>
-
-        <div class="chart-canvas-wrapper" id="chart-wrapper">
-          <canvas id="scada-trend-chart"></canvas>
-          <div id="chart-tooltip" class="chart-tooltip hidden">
-            <div class="tooltip-time" id="tt-time">--:--:--</div>
-            <div class="tooltip-row">
-              <span>Distance:</span>
-              <strong id="tt-dist">-- cm</strong>
-            </div>
-            <div class="tooltip-row">
-              <span>Fill Level:</span>
-              <strong id="tt-fill">--%</strong>
-            </div>
-            <div class="tooltip-row">
-              <span>Status:</span>
-              <span id="tt-status" class="tt-status-pill">NORMAL</span>
-            </div>
-          </div>
+        <div class="footer-right">
+          <span class="f-badge">5000ms Polling</span>
+          <span class="f-badge f-badge--green" id="footer-status-pill">System Online</span>
         </div>
+      </footer>
 
-        <div class="chart-stats-strip">
-          <div class="cstat-item">
-            <span class="cstat-lbl">CURRENT DISTANCE</span>
-            <span class="cstat-val" id="cstat-curr">-- cm</span>
-          </div>
-          <div class="cstat-item">
-            <span class="cstat-lbl">MIN DISTANCE (HIGHEST GRAIN)</span>
-            <span class="cstat-val" id="cstat-min">-- cm</span>
-          </div>
-          <div class="cstat-item">
-            <span class="cstat-lbl">MAX DISTANCE (LOWEST GRAIN)</span>
-            <span class="cstat-val" id="cstat-max">-- cm</span>
-          </div>
-          <div class="cstat-item">
-            <span class="cstat-lbl">STABILITY</span>
-            <span class="cstat-val cstat-val--emerald" id="cstat-stability">99.8%</span>
-          </div>
-        </div>
-      </section>
+    </div><!-- /app-main -->
 
-      <!-- ================= HISTORICAL TELEMETRY LOGS ================= -->
-      <section class="scada-panel table-panel-container">
-        <div class="panel-header">
-          <div class="panel-title-area">
-            <div class="panel-badge panel-badge--blue">AUDIT TRAIL</div>
-            <h2 class="panel-title">Telemetry Sensor Logs</h2>
-            <span class="panel-sub" id="table-subtitle">Displaying latest sensor cycles</span>
-          </div>
+  </div><!-- /app-layout -->
 
-          <div class="table-actions">
-            <!-- Filter by Status -->
-            <div class="table-filter-group">
-              <button class="filter-chip active" data-filter="ALL">ALL</button>
-              <button class="filter-chip" data-filter="NORMAL">NORMAL</button>
-              <button class="filter-chip" data-filter="LOW">LOW</button>
-              <button class="filter-chip" data-filter="ERROR">ERROR</button>
-            </div>
-
-            <!-- Export to CSV -->
-            <button id="btn-export-csv" class="scada-btn scada-btn--export"
-              title="Download historical readings as CSV file for lab records">
-              <svg viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                  d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-                  clip-rule="evenodd" />
-              </svg>
-              <span>Export CSV</span>
-            </button>
-
-            <!-- Refresh Table -->
-            <button id="btn-refresh-table" class="scada-btn scada-btn--icon" title="Refresh Log Table">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <div class="table-scroller">
-          <table class="scada-table" id="scada-table">
-            <thead>
-              <tr>
-                <th style="width: 60px;">#</th>
-                <th>TIMESTAMP</th>
-                <th>DEVICE ID</th>
-                <th>DISTANCE</th>
-                <th>FILL %</th>
-                <th>GRAIN STATUS</th>
-                <th style="text-align: center;">RED LED (25)</th>
-                <th style="text-align: center;">GREEN LED (26)</th>
-              </tr>
-            </thead>
-            <tbody id="readings-tbody">
-              <tr>
-                <td colspan="8" class="table-empty">
-                  <div class="empty-state-box">
-                    <div class="empty-spinner"></div>
-                    <span>Initializing telemetry connection...</span>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-    </main>
-
-    <!-- ─── INDUSTRIAL SCADA FOOTER ─── -->
-    <footer class="scada-footer">
-      <div class="footer-left">
-        <span class="f-proj">Smart Grain Storage &amp; Monitoring System</span>
-        <span class="f-dot">&bull;</span>
-        <span class="f-hw">ESP32 DevKit &bull; HC-SR04 &bull; FastAPI ASGI Backend &bull; SQLite Persistence</span>
-      </div>
-      <div class="footer-right">
-        <span class="f-chip">HTTP REST / 5000ms Poll</span>
-        <span class="f-chip f-chip--green" id="footer-status-pill">System Online</span>
-      </div>
-    </footer>
-
-  </div><!-- /scada-layout -->
-
-
-  <!-- ================= SILO CALIBRATION MODAL ================= -->
+  <!-- ================= SILO SIZING & CALIBRATION MODAL ================= -->
   <div id="config-modal" class="scada-modal hidden">
     <div class="modal-backdrop" id="modal-backdrop"></div>
     <div class="modal-card">
       <div class="modal-header">
-        <div class="modal-title-wrap">
-          <h3 class="modal-title">Silo Dimensions &amp; Calibration</h3>
-          <span class="modal-sub">Configure physical grain container dimensions and warning trigger thresholds</span>
+        <div>
+          <h3 class="modal-title">Silo Dimensions &amp; Bounds</h3>
+          <span class="modal-sub">Calibrate physical vessel height and low grain warning trigger</span>
         </div>
         <button id="btn-close-modal" class="modal-close-btn">&times;</button>
       </div>
@@ -745,35 +799,34 @@
       <form id="config-form" class="modal-body">
         <div class="form-group">
           <label for="cfg-container-height" class="form-label">Container Total Height (cm):</label>
-          <input type="number" id="cfg-container-height" class="scada-input" min="1" max="1000" step="0.1" value="7.0"
+          <input type="number" id="cfg-container-height" class="grain-input" min="1" max="1000" step="0.1" value="9.0"
             required />
-          <span class="form-hint">Physical depth from HC-SR04 ultrasonic sensor lens down to empty silo bottom (7.0
-            cm).</span>
+          <span class="form-hint">Physical depth from HC-SR04 sensor lens down to empty container base (9.0 cm).</span>
         </div>
 
         <div class="form-group">
           <label for="cfg-low-threshold" class="form-label">Low Grain Alert Threshold (%):</label>
-          <input type="number" id="cfg-low-threshold" class="scada-input" min="1" max="99" step="0.1" value="28.6"
+          <input type="number" id="cfg-low-threshold" class="grain-input" min="1" max="99" step="0.1" value="22.2"
             required />
-          <span class="form-hint">Trigger Red LED & alert when depth &le; 2.0 cm (28.6% of 7.0 cm).</span>
+          <span class="form-hint">Fires Red LED and alert when grain depth &le; 2.0 cm (22.2% of 9.0 cm).</span>
         </div>
 
         <div class="form-group">
           <label for="cfg-device-id" class="form-label">Target Device ID:</label>
-          <input type="text" id="cfg-device-id" class="scada-input" value="ESP32-GRAIN-01" required />
-          <span class="form-hint">Matches <code>DEVICE_ID</code> in <code>grain_monitor.ino</code> firmware.</span>
+          <input type="text" id="cfg-device-id" class="grain-input" value="ESP32-GRAIN-01" required />
+          <span class="form-hint">Must match <code>DEVICE_ID</code> in <code>grain_monitor.ino</code>.</span>
         </div>
 
         <div class="modal-actions">
-          <button type="button" id="btn-cancel-config" class="scada-btn">Cancel</button>
-          <button type="submit" class="scada-btn scada-btn--highlight">Apply Calibration</button>
+          <button type="button" id="btn-cancel-config" class="header-btn">Cancel</button>
+          <button type="submit" class="header-btn header-btn--amber">Save Calibration</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Pure Vanilla Javascript Entry Point -->
-  <script src="script.js"></script>
+  <!-- Pure Vanilla Javascript Entry Point with Cache Buster -->
+  <script src="script.js?v=3.5"></script>
 </body>
 
 </html>
